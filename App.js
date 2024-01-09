@@ -3,9 +3,64 @@ import { View, Text, TouchableOpacity, TextInput, Alert, StyleSheet } from 'reac
 import { BarCodeScanner } from 'expo-barcode-scanner';
 import { NavigationContainer, useRoute, useFocusEffect } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
-
+import { AntDesign, MaterialIcons } from '@expo/vector-icons';
+import AdminScreen, { TableScreen, ComputerScreen } from './adminScreen';
 
 const Stack = createStackNavigator();
+
+const TopHeaderButtons = ({ navigation }) => {
+  const tabs = [
+    { screen: 'Home', label: 'Клиент' },
+    { screen: 'AdminScreen', label: 'Инвентаризация' },
+  ];
+
+  return (
+    <View style={styles.topButtonsContainer}>
+      {tabs.map((tab, index) => (
+        <TouchableOpacity
+          key={index}
+          style={[styles.topButton, index !== 0 && styles.activeButton]}
+          onPress={() => {
+            navigation.navigate(tab.screen);
+          }}
+        >
+          <Text style={[styles.buttonText, index !== 0 && styles.activeButtonText]}>
+            {tab.label}
+          </Text>
+        </TouchableOpacity>
+      ))}
+    </View>
+  );
+};
+
+
+const HeaderButtons = ({ navigation }) => {
+  return (
+    <View style={styles.buttonContainer}>
+      <TouchableOpacity
+        style={styles.backButton}
+        onPress={() => {
+          navigation.goBack();
+        }}
+      >
+        <View style={{ flexDirection: 'row', alignItems: 'flex-end' }}>
+          <Text style={{ color: '#ffffff' }}>Назад </Text>
+          <MaterialIcons name="qr-code-2" size={20} left={30} color="white" />
+        </View>
+      </TouchableOpacity>
+
+      <TouchableOpacity
+        style={styles.sendButton}
+        onPress={() => Alert.alert('Ваше обращение отправлено')}
+      >
+        <View style={{ flexDirection: 'row', alignItems: 'flex-end' }}>
+          <Text style={{ color: '#ffffff' }}>Отправить</Text>
+          <AntDesign name="arrowright" size={20} left={20} color="white" />
+        </View>
+      </TouchableOpacity>
+    </View>
+  );
+};
 
 const HomeScreen = ({ navigation }) => {
   const [hasPermission, setHasPermission] = React.useState(null);
@@ -37,10 +92,10 @@ const HomeScreen = ({ navigation }) => {
         Alert.alert('QR код не существует', '', [
           {
             text: 'OK',
-            onPress: () => setAlertShown(false), 
+            onPress: () => setAlertShown(false),
           },
         ]);
-        setAlertShown(true); 
+        setAlertShown(true);
       }
     }
   };
@@ -72,14 +127,7 @@ const OfficeScreen = ({ navigation }) => {
   return (
     <View style={styles.container}>
       <View style={styles.overlay}>
-        <TouchableOpacity
-          style={styles.goBackButton}
-          onPress={() => {
-            navigation.goBack();
-          }}
-        >
-          <Text style={{ color: '#ffffff' }}>Назад</Text>
-        </TouchableOpacity>
+        <TopHeaderButtons navigation={navigation} />
         <Text style={styles.overlayText}>Вы отсканировали QR-код: офиса</Text>
         <View style={styles.categoryContainer}>
           <Text style={styles.categoryText}>Что вас интересует</Text>
@@ -122,13 +170,8 @@ const OfficeScreen = ({ navigation }) => {
           multiline={true}
           placeholderTextColor="#979aaa"
         />
+        <HeaderButtons navigation={navigation} />
 
-        <TouchableOpacity
-          style={styles.sendButton}
-          onPress={() => Alert.alert('Ваше обращение отправлено')}
-        >
-          <Text style={{ color: '#ffffff' }}>Отправить</Text>
-        </TouchableOpacity>
       </View>
     </View>
   );
@@ -141,13 +184,8 @@ const MFUScreen = ({ navigation }) => {
   return (
     <View style={styles.container}>
       <View style={styles.overlay}>
+        <TopHeaderButtons navigation={navigation} />
         <Text style={styles.overlayText}>Вы отсканировали QR-код: МФУ</Text>
-        <TouchableOpacity
-          style={styles.goBackButton}
-          onPress={() => navigation.goBack()}
-        >
-          <Text style={{ color: '#ffffff' }}>Назад</Text>
-        </TouchableOpacity>
         <View style={styles.categoryContainer}>
           <Text style={styles.categoryText}>Что вас интересует</Text>
           <View style={styles.categoryButtonContainer}>
@@ -214,12 +252,8 @@ const MFUScreen = ({ navigation }) => {
           multiline={true}
           placeholderTextColor="#979aaa"
         />
-        <TouchableOpacity
-          style={styles.sendButton}
-          onPress={() => Alert.alert('Ваше обращение отправлено')}
-        >
-          <Text style={{ color: '#ffffff' }}>Отправить</Text>
-        </TouchableOpacity>
+        <HeaderButtons navigation={navigation} />
+
       </View>
     </View>
   );
@@ -242,6 +276,21 @@ const App = () => {
         <Stack.Screen
           name="OfficeScreen"
           component={OfficeScreen}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="AdminScreen"
+          component={AdminScreen}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="TableScreen"
+          component={TableScreen}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="ComputerScreen"
+          component={ComputerScreen}
           options={{ headerShown: false }}
         />
       </Stack.Navigator>
@@ -293,7 +342,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   categoryButton: {
-    backgroundColor: 'transparent',
+    backgroundColor: '#42aaff',
     color: 'white',
     fontSize: 14,
     borderWidth: 1,
@@ -306,7 +355,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   mfuCategoryButton: {
-    backgroundColor: 'transparent',
+    backgroundColor: '#42aaff',
     color: 'white',
     fontSize: 14,
     borderWidth: 1,
@@ -319,7 +368,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   mfuSubCategoryButton: {
-    backgroundColor: 'transparent',
+    backgroundColor: '#42aaff',
     color: 'white',
     fontSize: 14,
     borderWidth: 1,
@@ -336,7 +385,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#78787e'
   },
   subCategoryButton: {
-    backgroundColor: 'transparent',
+    backgroundColor: '#42aaff',
     color: 'white',
     fontSize: 14,
     borderWidth: 1,
@@ -370,16 +419,54 @@ const styles = StyleSheet.create({
     backgroundColor: '#CCCCCC',
     borderRadius: 8,
     alignItems: 'center',
-    height: 20,
-    width: 50,
+    justifyContent: 'center',
+    fontSize: 24,
+    height: 50,
+    width: 100,
+  },
+  topButtonsContainer: {
+    position: 'absolute',
+    top: 40,
+    flexDirection: 'row',
+    paddingHorizontal: 20,
+    paddingTop: 0,
+  },
+  topButton: {
+    flex: 1,
+    backgroundColor: '#009b4d',
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 8,
+    margin: 1,
+  },
+  activeButton: {
+    backgroundColor: '#006634',
+  },
+  buttonText: {
+    color: '#ffffff',
+    textAlign: 'center',
+  },
+  activeButtonText: {
+    fontWeight: 'bold',
+  },
+  buttonContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingHorizontal: 20,
+  },
+  backButton: {
+    backgroundColor: '#CCCCCC',
+    padding: 16,
+    borderRadius: 8,
+    alignItems: 'center',
+    width: 150,
   },
   sendButton: {
     backgroundColor: '#009b4d',
     padding: 16,
     borderRadius: 8,
     alignItems: 'center',
-    width: 200,
-    alignSelf: 'center',
+    width: 150,
   },
 });
 export { HomeScreen, MFUScreen };
