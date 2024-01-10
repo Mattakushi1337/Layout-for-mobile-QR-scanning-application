@@ -61,7 +61,6 @@ const HeaderButtons = ({ navigation }) => {
     return (
         <View style={styles.buttonContainer}>
             <TouchableOpacity
-                style={styles.backButton}
                 onPress={() => {
                     navigation.goBack();
                 }}
@@ -176,7 +175,13 @@ const MFUIntScreen = ({ navigation }) => {
     return (
         <View style={styles.container}>
             <View style={styles.overlay}>
-                <Text style={styles.overlayText}>Информация о МФУ:</Text>
+                <Text style={styles.text}>Наименование:</Text>
+                <TextInput
+                    style={styles.inputName}
+                    placeholder="Наименование"
+                    value="МФУ"
+                    editable={false}
+                />
                 <Text style={styles.text}>Инвентарный номер:</Text>
                 <TextInput
                     style={styles.inputNumber}
@@ -221,9 +226,8 @@ const MFUIntScreen = ({ navigation }) => {
                 />
                 <TopHeaderButtons navigation={navigation} />
                 <HeaderButtons navigation={navigation} />
-
             </View>
-        </View>
+        </View >
     );
 };
 
@@ -236,7 +240,13 @@ const TableScreen = ({ navigation }) => {
     return (
         <View style={styles.container}>
             <View style={styles.overlay}>
-                <Text style={styles.overlayText}>Информация о столе:</Text>
+                <Text style={styles.text}>Наименование:</Text>
+                <TextInput
+                    style={styles.inputName}
+                    placeholder="Наименование"
+                    value="Стол"
+                    editable={false}
+                />
                 <Text style={styles.text}>Инвентарный номер:</Text>
                 <TextInput
                     style={styles.inputNumber}
@@ -296,7 +306,13 @@ const ComputerScreen = ({ navigation }) => {
     return (
         <View style={styles.container}>
             <View style={styles.overlay}>
-                <Text style={styles.overlayText}>Информация о компьютере:</Text>
+                <Text style={styles.text}>Наименование:</Text>
+                <TextInput
+                    style={styles.inputName}
+                    placeholder="Наименование"
+                    value="Компьютер"
+                    editable={false}
+                />
                 <Text style={styles.text}>Инвентарный номер:</Text>
                 <TextInput
                     style={styles.inputNumber}
@@ -374,18 +390,27 @@ const styles = StyleSheet.create({
     input: {
         backgroundColor: '#ffffff',
         color: '#000000',
-        padding: 10,
+        padding: 5,
         borderRadius: 8,
         marginBottom: 12,
-        height: 53,
+        height: 45,
     },
     inputNumber: {
         backgroundColor: '#626369',
         color: '#ffffff',
-        padding: 10,
+        padding: 5,
         borderRadius: 8,
         marginBottom: 12,
-        height: 53,
+        height: 45,
+    },
+    inputName: {
+        backgroundColor: '#626369',
+        color: '#ffffff',
+        padding: 5,
+        borderRadius: 8,
+        marginBottom: 12,
+        height: 45,
+        fontWeight: 'bold'
     },
     goBackButton: {
         position: 'absolute',
@@ -430,11 +455,6 @@ const styles = StyleSheet.create({
     },
     activeButtonText: {
         fontWeight: 'bold',
-    },
-    overlayText: {
-        color: '#ffffff',
-        fontSize: 24,
-        textAlign: 'center',
     },
     text: {
         color: '#ffffff',

@@ -177,7 +177,8 @@ const OfficeScreen = ({ navigation }) => {
     <View style={styles.container}>
       <View style={styles.overlay}>
         <TopHeaderButtons navigation={navigation} />
-        <Text style={styles.overlayText}>Вы отсканировали QR-код: офиса</Text>
+        <Text style={styles.overlayText}>Вы отсканировали QR-код:{'\n'}
+          <Text style={styles.overlayCategory}>офиса</Text></Text>
         <View style={styles.categoryContainer}>
           <Text style={styles.categoryText}>Что вас интересует</Text>
 
@@ -234,7 +235,8 @@ const MFUScreen = ({ navigation }) => {
     <View style={styles.container}>
       <View style={styles.overlay}>
         <TopHeaderButtons navigation={navigation} />
-        <Text style={styles.overlayText}>Вы отсканировали QR-код: МФУ</Text>
+        <Text style={styles.overlayText}>Вы отсканировали QR-код:{'\n'}
+          <Text style={styles.overlayCategory}>МФУ</Text></Text>
         <View style={styles.categoryContainer}>
           <Text style={styles.categoryText}>Что вас интересует</Text>
           <View style={styles.categoryButtonContainer}>
@@ -316,7 +318,8 @@ const TableFixScreen = ({ navigation }) => {
     <View style={styles.container}>
       <View style={styles.overlay}>
         <TopHeaderButtons navigation={navigation} />
-        <Text style={styles.overlayText}>Вы отсканировали QR-код: стула</Text>
+        <Text style={styles.overlayText}>Вы отсканировали QR-код:{'\n'}
+          <Text style={styles.overlayCategory}>стола</Text></Text>
         <View style={styles.categoryContainer}>
           <Text style={styles.categoryText}>Что вас интересует</Text>
 
@@ -356,7 +359,9 @@ const ComputerFixScreen = ({ navigation }) => {
     <View style={styles.container}>
       <View style={styles.overlay}>
         <TopHeaderButtons navigation={navigation} />
-        <Text style={styles.overlayText}>Вы отсканировали QR-код: офиса</Text>
+        <Text style={styles.overlayText}>Вы отсканировали QR-код:{'\n'}
+            <Text style={styles.overlayCategory}>компьютера</Text>
+        </Text>
         <View style={styles.categoryContainer}>
           <Text style={styles.categoryText}>Что вас интересует</Text>
 
@@ -484,10 +489,18 @@ const styles = StyleSheet.create({
     color: '#ffffff',
     fontSize: 24,
     textAlign: 'center',
+    textAlignVertical: "center",
+  },
+  overlayCategory: {
+    color: '#20242a',
+    fontSize: 24,
+    textAlign: 'center',
+    backgroundColor: "#f8cc37",
+    borderRadius: 9,
   },
   categoryContainer: {
     backgroundColor: '#626369',
-    marginTop: 16,
+    marginTop: 10,
     padding: 16,
     borderRadius: 9,
     marginBottom: 10
@@ -543,7 +556,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   subCategoryContainer: {
-    backgroundColor: '#78787e'
+    backgroundColor: '#78787e',
+    borderRadius: 9,
   },
   subCategoryButton: {
     backgroundColor: '#42aaff',
@@ -651,10 +665,8 @@ const cartridgeColors = [
   { label: 'Пурпурный' },
 ];
 
-
 const TableCategories = [
   { label: 'Ножка' },
-  { label: 'Колёсико' },
 ];
 
 const computerCategories = [
