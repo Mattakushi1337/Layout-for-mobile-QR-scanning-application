@@ -32,6 +32,30 @@ const TopHeaderButtons = ({ navigation }) => {
     );
 };
 
+const TopHeaderButtonsQR = ({ navigation }) => {
+    const tabs = [
+        { screen: 'Home', label: 'Клиент' },
+        { screen: 'AdminScreen', label: 'Инвентаризация' },
+    ];
+
+    return (
+        <View style={styles.topButtonsContainerQR}>
+            {tabs.map((tab, index) => (
+                <TouchableOpacity
+                    key={index}
+                    style={[styles.topButton, index === 0 && styles.activeButton]}
+                    onPress={() => {
+                        navigation.navigate(tab.screen);
+                    }}
+                >
+                    <Text style={[styles.buttonText, index === 0 && styles.activeButtonText]}>
+                        {tab.label}
+                    </Text>
+                </TouchableOpacity>
+            ))}
+        </View>
+    );
+};
 
 const HeaderButtons = ({ navigation }) => {
     return (
@@ -42,9 +66,18 @@ const HeaderButtons = ({ navigation }) => {
                     navigation.goBack();
                 }}
             >
-                <View style={{ flexDirection: 'row', alignItems: 'flex-end' }}>
+                <View style={{
+                    flexDirection: 'row', backgroundColor: '#CCCCCC',
+                    padding: 2,
+                    borderRadius: 8,
+                    alignItems: 'center',
+                    width: 150,
+                    alignContent: 'center',
+                    paddingLeft: 30,
+                    height: 55
+                }}>
                     <Text style={{ color: '#ffffff' }}>Назад </Text>
-                    <MaterialIcons name="qr-code-2" size={20} left={30} color="white" />
+                    <MaterialIcons name="qr-code-2" size={50} left={20} color="white" />
                 </View>
             </TouchableOpacity>
 
@@ -52,7 +85,16 @@ const HeaderButtons = ({ navigation }) => {
                 style={styles.sendButton}
                 onPress={() => Alert.alert('Объект проверен')}
             >
-                <View style={{ flexDirection: 'row', alignItems: 'flex-end' }}>
+                <View style={{
+                    flexDirection: 'row', backgroundColor: '#009b4d',
+                    padding: 2,
+                    borderRadius: 8,
+                    alignItems: 'center',
+                    width: 150,
+                    alignContent: 'center',
+                    paddingLeft: 30,
+                    height: 55
+                }}>
                     <Text style={{ color: '#ffffff' }}>Проверено</Text>
                     <AntDesign name="arrowright" size={20} left={20} color="white" />
                 </View>
@@ -71,8 +113,12 @@ const AdminScreen = ({ navigation }) => {
     };
 
     useEffect(() => {
-        requestCameraPermission();
-    }, []);
+        const unsubscribe = navigation.addListener('blur', () => {
+            setHasPermission(null);
+        });
+
+        return unsubscribe;
+    }, [navigation]);
 
     useFocusEffect(
         React.useCallback(() => {
@@ -82,7 +128,10 @@ const AdminScreen = ({ navigation }) => {
     );
 
     const handleBarCodeScanned = ({ data }) => {
-        if (data === '3') {
+        if (data === '2') {
+            navigation.navigate('MFUIntScreen');
+        }
+        else if (data === '3') {
             navigation.navigate('TableScreen');
         } else if (data === '4') {
             navigation.navigate('ComputerScreen');
@@ -113,7 +162,67 @@ const AdminScreen = ({ navigation }) => {
                 onBarCodeScanned={handleBarCodeScanned}
                 style={StyleSheet.absoluteFillObject}
             />
+            <TopHeaderButtonsQR navigation={navigation} />
             <View style={styles.square}></View>
+        </View>
+    );
+};
+const MFUIntScreen = ({ navigation }) => {
+    const [location, setLocation] = useState('Республики 51');
+    const [model, setModel] = useState('FE122');
+    const [serialNumber, setSerialNumber] = useState('8453221');
+    const [description, setDescription] = useState('Исправен');
+    const [entryDate, setEntryDate] = useState('22.11.2022');
+    return (
+        <View style={styles.container}>
+            <View style={styles.overlay}>
+                <Text style={styles.overlayText}>Информация о МФУ:</Text>
+                <Text style={styles.text}>Инвентарный номер:</Text>
+                <TextInput
+                    style={styles.inputNumber}
+                    placeholder="Инвентарный номер"
+                    value="53652345"
+                    editable={false}
+                />
+                <Text style={styles.text}>Место расположения:</Text>
+                <TextInput
+                    style={styles.input}
+                    placeholder="Место расположения"
+                    value={location}
+                    onChangeText={(text) => setLocation(text)}
+                />
+                <Text style={styles.text}>Модель:</Text>
+                <TextInput
+                    style={styles.input}
+                    placeholder="Модель"
+                    value={model}
+                    onChangeText={(text) => setModel(text)}
+                />
+                <Text style={styles.text}>Серийный номер:</Text>
+                <TextInput
+                    style={styles.input}
+                    placeholder="Серийный номер"
+                    value={serialNumber}
+                    onChangeText={(text) => setSerialNumber(text)}
+                />
+                <Text style={styles.text}>Описание:</Text>
+                <TextInput
+                    style={styles.input}
+                    placeholder="Описание"
+                    value={description}
+                    onChangeText={(text) => setDescription(text)}
+                />
+                <Text style={styles.text}>Дата ввода:</Text>
+                <TextInput
+                    style={styles.input}
+                    placeholder="Дата ввода"
+                    value={entryDate}
+                    onChangeText={(text) => setEntryDate(text)}
+                />
+                <TopHeaderButtons navigation={navigation} />
+                <HeaderButtons navigation={navigation} />
+
+            </View>
         </View>
     );
 };
@@ -130,7 +239,7 @@ const TableScreen = ({ navigation }) => {
                 <Text style={styles.overlayText}>Информация о столе:</Text>
                 <Text style={styles.text}>Инвентарный номер:</Text>
                 <TextInput
-                    style={styles.input}
+                    style={styles.inputNumber}
                     placeholder="Инвентарный номер"
                     value="123"
                     editable={false}
@@ -190,7 +299,7 @@ const ComputerScreen = ({ navigation }) => {
                 <Text style={styles.overlayText}>Информация о компьютере:</Text>
                 <Text style={styles.text}>Инвентарный номер:</Text>
                 <TextInput
-                    style={styles.input}
+                    style={styles.inputNumber}
                     placeholder="Инвентарный номер"
                     value="3213"
                     editable={false}
@@ -238,7 +347,7 @@ const ComputerScreen = ({ navigation }) => {
     );
 };
 
-export { AdminScreen, TableScreen, ComputerScreen };
+export { AdminScreen, TableScreen, ComputerScreen, MFUIntScreen };
 
 const styles = StyleSheet.create({
     container: {
@@ -263,7 +372,15 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
     },
     input: {
-        backgroundColor: '#212d23',
+        backgroundColor: '#ffffff',
+        color: '#000000',
+        padding: 10,
+        borderRadius: 8,
+        marginBottom: 12,
+        height: 53,
+    },
+    inputNumber: {
+        backgroundColor: '#626369',
         color: '#ffffff',
         padding: 10,
         borderRadius: 8,
@@ -283,8 +400,15 @@ const styles = StyleSheet.create({
         width: 100,
     },
     topButtonsContainer: {
+        position: 'fixed',
+        top: -580,
+        flexDirection: 'row',
+        paddingHorizontal: 20,
+        paddingTop: 0,
+    },
+    topButtonsContainerQR: {
         position: 'absolute',
-        top: 40,
+        top: 70,
         flexDirection: 'row',
         paddingHorizontal: 20,
         paddingTop: 0,
@@ -315,26 +439,12 @@ const styles = StyleSheet.create({
     text: {
         color: '#ffffff',
     },
-
     buttonContainer: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         paddingHorizontal: 20,
     },
-    backButton: {
-        backgroundColor: '#CCCCCC',
-        padding: 16,
-        borderRadius: 8,
-        alignItems: 'center',
-        width: 150,
-    },
-    sendButton: {
-        backgroundColor: '#009b4d',
-        padding: 16,
-        borderRadius: 8,
-        alignItems: 'center',
-        width: 150,
-    },
+
 });
 
 export default AdminScreen;

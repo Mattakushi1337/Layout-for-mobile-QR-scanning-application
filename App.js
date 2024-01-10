@@ -4,7 +4,7 @@ import { BarCodeScanner } from 'expo-barcode-scanner';
 import { NavigationContainer, useRoute, useFocusEffect } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { AntDesign, MaterialIcons } from '@expo/vector-icons';
-import AdminScreen, { TableScreen, ComputerScreen } from './adminScreen';
+import AdminScreen, { TableScreen, ComputerScreen, MFUIntScreen } from './adminScreen';
 
 const Stack = createStackNavigator();
 
@@ -33,27 +33,68 @@ const TopHeaderButtons = ({ navigation }) => {
   );
 };
 
+const TopHeaderButtonsQR = ({ navigation }) => {
+  const tabs = [
+    { screen: 'Home', label: 'Клиент' },
+    { screen: 'AdminScreen', label: 'Инвентаризация' },
+  ];
+
+  return (
+    <View style={styles.topButtonsContainerQR}>
+      {tabs.map((tab, index) => (
+        <TouchableOpacity
+          key={index}
+          style={[styles.topButton, index !== 0 && styles.activeButton]}
+          onPress={() => {
+            navigation.navigate(tab.screen);
+          }}
+        >
+          <Text style={[styles.buttonText, index !== 0 && styles.activeButtonText]}>
+            {tab.label}
+          </Text>
+        </TouchableOpacity>
+      ))}
+    </View>
+  );
+};
 
 const HeaderButtons = ({ navigation }) => {
   return (
     <View style={styles.buttonContainer}>
       <TouchableOpacity
-        style={styles.backButton}
         onPress={() => {
           navigation.goBack();
         }}
       >
-        <View style={{ flexDirection: 'row', alignItems: 'flex-end' }}>
+        <View style={{
+          flexDirection: 'row', backgroundColor: '#CCCCCC',
+          padding: 2,
+          borderRadius: 8,
+          alignItems: 'center',
+          width: 150,
+          alignContent: 'center',
+          paddingLeft: 30,
+          height: 55
+        }}>
           <Text style={{ color: '#ffffff' }}>Назад </Text>
-          <MaterialIcons name="qr-code-2" size={20} left={30} color="white" />
+          <MaterialIcons name="qr-code-2" size={50} left={20} color="white" />
         </View>
       </TouchableOpacity>
 
       <TouchableOpacity
         style={styles.sendButton}
-        onPress={() => Alert.alert('Ваше обращение отправлено')}
+        onPress={() => Alert.alert('Обращение отправлено')}
       >
-        <View style={{ flexDirection: 'row', alignItems: 'flex-end' }}>
+        <View style={{
+          flexDirection: 'row', backgroundColor: '#009b4d',
+          padding: 2,
+          borderRadius: 8,
+          alignItems: 'center',
+          width: 150,
+          alignContent: 'center',
+          paddingLeft: 30,
+          height: 55
+        }}>
           <Text style={{ color: '#ffffff' }}>Отправить</Text>
           <AntDesign name="arrowright" size={20} left={20} color="white" />
         </View>
@@ -72,8 +113,12 @@ const HomeScreen = ({ navigation }) => {
   };
 
   useEffect(() => {
-    requestCameraPermission();
-  }, []);
+    const unsubscribe = navigation.addListener('blur', () => {
+      setHasPermission(null);
+    });
+
+    return unsubscribe;
+  }, [navigation]);
 
   useFocusEffect(
     React.useCallback(() => {
@@ -87,6 +132,10 @@ const HomeScreen = ({ navigation }) => {
       navigation.navigate('OfficeScreen');
     } else if (data === '2') {
       navigation.navigate('MFUScreen');
+    } else if (data === '3') {
+      navigation.navigate('TableFixScreen');
+    } else if (data === '4') {
+      navigation.navigate('ComputerFixScreen');
     } else {
       if (!alertShown) {
         Alert.alert('QR код не существует', '', [
@@ -114,6 +163,7 @@ const HomeScreen = ({ navigation }) => {
         onBarCodeScanned={handleBarCodeScanned}
         style={StyleSheet.absoluteFillObject}
       />
+      <TopHeaderButtonsQR navigation={navigation} />
       <View style={styles.square}></View>
     </View>
   );
@@ -122,7 +172,6 @@ const HomeScreen = ({ navigation }) => {
 const OfficeScreen = ({ navigation }) => {
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [selectedSubCategory, setSelectedSubCategory] = useState(null);
-  const route = useRoute();
 
   return (
     <View style={styles.container}>
@@ -259,6 +308,102 @@ const MFUScreen = ({ navigation }) => {
   );
 };
 
+const TableFixScreen = ({ navigation }) => {
+  const [selectedCategory, setSelectedCategory] = useState(null);
+  const [selectedSubCategory, setSelectedSubCategory] = useState(null);
+
+  return (
+    <View style={styles.container}>
+      <View style={styles.overlay}>
+        <TopHeaderButtons navigation={navigation} />
+        <Text style={styles.overlayText}>Вы отсканировали QR-код: стула</Text>
+        <View style={styles.categoryContainer}>
+          <Text style={styles.categoryText}>Что вас интересует</Text>
+
+          <View style={styles.categoryButtonContainer}>
+            {TableCategories.map((category) => (
+              <TouchableOpacity
+                key={category.label}
+                style={[styles.categoryButton, selectedCategory === category.label && styles.selectedButton]}
+                onPress={() => {
+                  setSelectedCategory(category.label);
+                  setSelectedSubCategory(null);
+                }}
+              >
+                <Text>{category.label}</Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+        </View>
+
+        <TextInput
+          style={styles.input}
+          placeholder={selectedCategory ? 'Дополните свой запрос здесь' : 'Напишите свой запрос здесь'}
+          multiline={true}
+          placeholderTextColor="#979aaa"
+        />
+        <HeaderButtons navigation={navigation} />
+
+      </View>
+    </View>
+  );
+};
+const ComputerFixScreen = ({ navigation }) => {
+  const [selectedCategory, setSelectedCategory] = useState(null);
+  const [selectedSubCategory, setSelectedSubCategory] = useState(null);
+
+  return (
+    <View style={styles.container}>
+      <View style={styles.overlay}>
+        <TopHeaderButtons navigation={navigation} />
+        <Text style={styles.overlayText}>Вы отсканировали QR-код: офиса</Text>
+        <View style={styles.categoryContainer}>
+          <Text style={styles.categoryText}>Что вас интересует</Text>
+
+          <View style={styles.categoryButtonContainer}>
+            {computerCategories.map((category) => (
+              <TouchableOpacity
+                key={category.label}
+                style={[styles.categoryButton, selectedCategory === category.label && styles.selectedButton]}
+                onPress={() => {
+                  setSelectedCategory(category.label);
+                  setSelectedSubCategory(null);
+                }}
+              >
+                <Text>{category.label}</Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+        </View>
+
+        {selectedCategory === 'Системный блок' && (
+          <View style={styles.subCategoryContainer}>
+            <View style={styles.categoryButtonContainer}>
+              {computerSubCategories.map((subCategory) => (
+                <TouchableOpacity
+                  key={subCategory.label}
+                  style={[styles.subCategoryButton, selectedSubCategory === subCategory.label && styles.subSelectedButton]}
+                  onPress={() => setSelectedSubCategory(subCategory.label)}
+                >
+                  <Text>{subCategory.label}</Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          </View>
+        )}
+
+        <TextInput
+          style={styles.input}
+          placeholder={selectedCategory ? 'Дополните свой запрос здесь' : 'Напишите свой запрос здесь'}
+          multiline={true}
+          placeholderTextColor="#979aaa"
+        />
+        <HeaderButtons navigation={navigation} />
+
+      </View>
+    </View>
+  );
+};
 const App = () => {
   return (
     <NavigationContainer>
@@ -291,6 +436,21 @@ const App = () => {
         <Stack.Screen
           name="ComputerScreen"
           component={ComputerScreen}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="MFUIntScreen"
+          component={MFUIntScreen}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="TableFixScreen"
+          component={TableFixScreen}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="ComputerFixScreen"
+          component={ComputerFixScreen}
           options={{ headerShown: false }}
         />
       </Stack.Navigator>
@@ -329,6 +489,8 @@ const styles = StyleSheet.create({
     backgroundColor: '#626369',
     marginTop: 16,
     padding: 16,
+    borderRadius: 9,
+    marginBottom: 10
   },
   categoryText: {
     color: '#ffffff',
@@ -348,7 +510,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: 'black',
     borderRadius: 20,
-    width: 80,
+    width: 100,
     height: 40,
     margin: 2,
     alignItems: 'center',
@@ -381,7 +543,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   subCategoryContainer: {
-
     backgroundColor: '#78787e'
   },
   subCategoryButton: {
@@ -404,11 +565,11 @@ const styles = StyleSheet.create({
     backgroundColor: '#ffa200',
   },
   input: {
-    backgroundColor: '#212d23',
-    color: '#ffffff',
+    backgroundColor: '#ffffff',
+    color: 'black',
     padding: 10,
     borderRadius: 8,
-    marginBottom: 12,
+    marginBottom: 10,
     height: 200,
     textAlignVertical: 'top',
   },
@@ -425,8 +586,15 @@ const styles = StyleSheet.create({
     width: 100,
   },
   topButtonsContainer: {
+    position: 'fixed',
+    top: -70,
+    flexDirection: 'row',
+    paddingHorizontal: 20,
+    paddingTop: 0,
+  },
+  topButtonsContainerQR: {
     position: 'absolute',
-    top: 40,
+    top: 70,
     flexDirection: 'row',
     paddingHorizontal: 20,
     paddingTop: 0,
@@ -453,20 +621,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     paddingHorizontal: 20,
-  },
-  backButton: {
-    backgroundColor: '#CCCCCC',
-    padding: 16,
-    borderRadius: 8,
-    alignItems: 'center',
-    width: 150,
-  },
-  sendButton: {
-    backgroundColor: '#009b4d',
-    padding: 16,
-    borderRadius: 8,
-    alignItems: 'center',
-    width: 150,
+
   },
 });
 export { HomeScreen, MFUScreen };
@@ -494,6 +649,23 @@ const cartridgeColors = [
   { label: 'Голубой' },
   { label: 'Жёлтый' },
   { label: 'Пурпурный' },
+];
+
+
+const TableCategories = [
+  { label: 'Ножка' },
+  { label: 'Колёсико' },
+];
+
+const computerCategories = [
+  { label: 'Системный блок' },
+  { label: 'Мышь' },
+  { label: 'Клавиатура' },
+];
+
+const computerSubCategories = [
+  { label: 'Гудит' },
+  { label: 'Не работает' },
 ];
 
 export default App;
