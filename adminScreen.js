@@ -20,6 +20,7 @@ const TopHeaderButtons = ({ navigation }) => {
                     key={index}
                     style={[styles.topButton, index === 0 && styles.activeButton]}
                     onPress={() => {
+                        previousScreen = undefined;
                         navigation.navigate(tab.screen);
                     }}
                 >
@@ -45,6 +46,7 @@ const TopHeaderButtonsQR = ({ navigation }) => {
                     key={index}
                     style={[styles.topButton, index === 0 && styles.activeButton]}
                     onPress={() => {
+                        previousScreen = undefined;
                         navigation.navigate(tab.screen);
                     }}
                 >
@@ -70,13 +72,14 @@ const HeaderButtons = ({ navigation }) => {
                     padding: 2,
                     borderRadius: 8,
                     alignItems: 'center',
-                    width: 150,
+                    width: 'auto',
+                    minWidth: 150,
                     alignContent: 'center',
-                    paddingLeft: 30,
+                    paddingLeft: 10,
                     height: 55
                 }}>
                     <Text style={{ color: '#ffffff' }}>Назад </Text>
-                    <MaterialIcons name="qr-code-2" size={50} left={20} color="white" />
+                    <MaterialIcons name="qr-code-2" size={50} marginLeft='auto' color="white" />
                 </View>
             </TouchableOpacity>
 
@@ -89,19 +92,21 @@ const HeaderButtons = ({ navigation }) => {
                     padding: 2,
                     borderRadius: 8,
                     alignItems: 'center',
-                    width: 150,
+                    width: 'auto',
+                    minWidth: 150,
                     alignContent: 'center',
-                    paddingLeft: 30,
+                    paddingLeft: 10,
                     height: 55
                 }}>
                     <Text style={{ color: '#ffffff' }}>Проверено</Text>
-                    <AntDesign name="arrowright" size={20} left={20} color="white" />
+                    <AntDesign name="arrowright" size={30} marginLeft='auto' color="white" />
                 </View>
             </TouchableOpacity>
         </View>
     );
 };
-
+var previousScreen;
+console.log('dsadsa', previousScreen);
 const AdminScreen = ({ navigation }) => {
     const [hasPermission, setHasPermission] = React.useState(null);
     const [alertShown, setAlertShown] = useState(false);
@@ -127,7 +132,10 @@ const AdminScreen = ({ navigation }) => {
     );
 
     const handleBarCodeScanned = ({ data }) => {
-        if (data === '2') {
+        if (data === '1') {
+            navigation.navigate('OfficeIntScreen');
+        }
+        else if (data === '2') {
             navigation.navigate('MFUIntScreen');
         }
         else if (data === '3') {
@@ -154,6 +162,7 @@ const AdminScreen = ({ navigation }) => {
     if (hasPermission === false) {
         return <Text>Доступ к камере запрещен</Text>;
     }
+    console.log('fdsfds', previousScreen);
 
     return (
         <View style={styles.container}>
@@ -163,10 +172,106 @@ const AdminScreen = ({ navigation }) => {
             />
             <TopHeaderButtonsQR navigation={navigation} />
             <View style={styles.square}></View>
+            <TouchableOpacity
+                onPress={() => {
+                    if (previousScreen !== undefined) {
+                        console.log('click');
+                        navigation.navigate(previousScreen);
+                    } else {
+                        navigation.navigate('AdminScreen');
+                    }
+                }}
+                style={{
+                    flexDirection: 'row', backgroundColor: '#CCCCCC',
+                    padding: 2,
+                    borderRadius: 8,
+                    alignItems: 'center',
+                    width: 'auto',
+                    minWidth: 150,
+                    alignContent: 'center',
+                    height: 55,
+                    top: 670,
+                    justifyContent: 'center',
+                    alignSelf: 'center',
+                    position: 'absolute',
+                }}
+            >
+                <Text style={{ color: '#ffffff' }}>Назад </Text>
+            </TouchableOpacity>
         </View>
     );
 };
+
+const OfficeIntScreen = ({ navigation }) => {
+    previousScreen = useRoute().name;
+    console.log('sdasda', previousScreen);
+    const [location, setLocation] = useState('Республики 51');
+    const [model, setModel] = useState('Офис');
+    const [serialNumber, setSerialNumber] = useState('Нет');
+    const [description, setDescription] = useState('Нет');
+    const [entryDate, setEntryDate] = useState('20.12.2007');
+    return (
+        <View style={styles.container}>
+            <View style={styles.overlay}>
+                <TopHeaderButtons navigation={navigation} />
+                <Text style={styles.text}>Наименование:</Text>
+                <TextInput
+                    style={styles.inputName}
+                    placeholder="Наименование"
+                    value="офис"
+                    editable={false}
+                />
+                <Text style={styles.text}>Инвентарный номер:</Text>
+                <TextInput
+                    style={styles.inputNumber}
+                    placeholder="Инвентарный номер"
+                    value="53652345"
+                    editable={false}
+                />
+                <Text style={styles.text}>Место расположения:</Text>
+                <TextInput
+                    style={styles.input}
+                    placeholder="Место расположения"
+                    value={location}
+                    onChangeText={(text) => setLocation(text)}
+                />
+                <Text style={styles.text}>Модель:</Text>
+                <TextInput
+                    style={styles.input}
+                    placeholder="Модель"
+                    value={model}
+                    onChangeText={(text) => setModel(text)}
+                />
+                <Text style={styles.text}>Серийный номер:</Text>
+                <TextInput
+                    style={styles.input}
+                    placeholder="Серийный номер"
+                    value={serialNumber}
+                    onChangeText={(text) => setSerialNumber(text)}
+                />
+                <Text style={styles.text}>Описание:</Text>
+                <TextInput
+                    style={styles.input}
+                    placeholder="Описание"
+                    value={description}
+                    onChangeText={(text) => setDescription(text)}
+                />
+                <Text style={styles.text}>Дата ввода:</Text>
+                <TextInput
+                    style={styles.input}
+                    placeholder="Дата ввода"
+                    value={entryDate}
+                    onChangeText={(text) => setEntryDate(text)}
+                />
+                <HeaderButtons navigation={navigation} />
+            </View>
+        </View >
+    );
+};
+
 const MFUIntScreen = ({ navigation }) => {
+    previousScreen = useRoute().name;
+    console.log('sdasda', previousScreen);
     const [location, setLocation] = useState('Республики 51');
     const [model, setModel] = useState('FE122');
     const [serialNumber, setSerialNumber] = useState('8453221');
@@ -175,6 +280,7 @@ const MFUIntScreen = ({ navigation }) => {
     return (
         <View style={styles.container}>
             <View style={styles.overlay}>
+                <TopHeaderButtons navigation={navigation} />
                 <Text style={styles.text}>Наименование:</Text>
                 <TextInput
                     style={styles.inputName}
@@ -224,7 +330,6 @@ const MFUIntScreen = ({ navigation }) => {
                     value={entryDate}
                     onChangeText={(text) => setEntryDate(text)}
                 />
-                <TopHeaderButtons navigation={navigation} />
                 <HeaderButtons navigation={navigation} />
             </View>
         </View >
@@ -232,6 +337,8 @@ const MFUIntScreen = ({ navigation }) => {
 };
 
 const TableScreen = ({ navigation }) => {
+    previousScreen = useRoute().name;
+    console.log('sdasda', previousScreen);
     const [location, setLocation] = useState('Республики 51');
     const [model, setModel] = useState('MDS312');
     const [serialNumber, setSerialNumber] = useState('682643520');
@@ -240,6 +347,7 @@ const TableScreen = ({ navigation }) => {
     return (
         <View style={styles.container}>
             <View style={styles.overlay}>
+                <TopHeaderButtons navigation={navigation} />
                 <Text style={styles.text}>Наименование:</Text>
                 <TextInput
                     style={styles.inputName}
@@ -289,15 +397,15 @@ const TableScreen = ({ navigation }) => {
                     value={entryDate}
                     onChangeText={(text) => setEntryDate(text)}
                 />
-                <TopHeaderButtons navigation={navigation} />
                 <HeaderButtons navigation={navigation} />
-
             </View>
         </View>
     );
 };
 
 const ComputerScreen = ({ navigation }) => {
+    previousScreen = useRoute().name;
+    console.log('sdasda', previousScreen);
     const [location, setLocation] = useState('Республики 51');
     const [model, setModel] = useState('XLE532');
     const [serialNumber, setSerialNumber] = useState('1247956528');
@@ -306,6 +414,7 @@ const ComputerScreen = ({ navigation }) => {
     return (
         <View style={styles.container}>
             <View style={styles.overlay}>
+                <TopHeaderButtons navigation={navigation} />
                 <Text style={styles.text}>Наименование:</Text>
                 <TextInput
                     style={styles.inputName}
@@ -355,15 +464,13 @@ const ComputerScreen = ({ navigation }) => {
                     value={entryDate}
                     onChangeText={(text) => setEntryDate(text)}
                 />
-                <TopHeaderButtons navigation={navigation} />
                 <HeaderButtons navigation={navigation} />
-
             </View>
         </View>
     );
 };
 
-export { AdminScreen, TableScreen, ComputerScreen, MFUIntScreen };
+export { AdminScreen, TableScreen, ComputerScreen, MFUIntScreen, OfficeIntScreen };
 
 const styles = StyleSheet.create({
     container: {
@@ -426,10 +533,9 @@ const styles = StyleSheet.create({
     },
     topButtonsContainer: {
         position: 'fixed',
-        top: -580,
         flexDirection: 'row',
         paddingHorizontal: 20,
-        paddingTop: 0,
+        marginBottom: 30
     },
     topButtonsContainerQR: {
         position: 'absolute',
@@ -463,8 +569,8 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'space-between',
         paddingHorizontal: 20,
+        paddingTop: 30
     },
-
 });
 
 export default AdminScreen;

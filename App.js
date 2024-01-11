@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { View, Text, TouchableOpacity, TextInput, Alert, StyleSheet } from 'react-native';
 import { BarCodeScanner } from 'expo-barcode-scanner';
 import { NavigationContainer, useRoute, useFocusEffect } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { AntDesign, MaterialIcons } from '@expo/vector-icons';
-import AdminScreen, { TableScreen, ComputerScreen, MFUIntScreen } from './adminScreen';
+import AdminScreen, { TableScreen, ComputerScreen, MFUIntScreen, OfficeIntScreen } from './adminScreen';
 
 const Stack = createStackNavigator();
 
@@ -21,6 +21,7 @@ const TopHeaderButtons = ({ navigation }) => {
           key={index}
           style={[styles.topButton, index !== 0 && styles.activeButton]}
           onPress={() => {
+            previousScreen = undefined;
             navigation.navigate(tab.screen);
           }}
         >
@@ -38,7 +39,6 @@ const TopHeaderButtonsQR = ({ navigation }) => {
     { screen: 'Home', label: 'Клиент' },
     { screen: 'AdminScreen', label: 'Инвентаризация' },
   ];
-
   return (
     <View style={styles.topButtonsContainerQR}>
       {tabs.map((tab, index) => (
@@ -46,6 +46,7 @@ const TopHeaderButtonsQR = ({ navigation }) => {
           key={index}
           style={[styles.topButton, index !== 0 && styles.activeButton]}
           onPress={() => {
+            previousScreen = undefined;
             navigation.navigate(tab.screen);
           }}
         >
@@ -71,13 +72,14 @@ const HeaderButtons = ({ navigation }) => {
           padding: 2,
           borderRadius: 8,
           alignItems: 'center',
-          width: 150,
+          width: 'auto',
+          minWidth: 150,
           alignContent: 'center',
-          paddingLeft: 30,
+          paddingLeft: 10,
           height: 55
         }}>
           <Text style={{ color: '#ffffff' }}>Назад </Text>
-          <MaterialIcons name="qr-code-2" size={50} left={20} color="white" />
+          <MaterialIcons name="qr-code-2" size={50} marginLeft='auto' color="white" />
         </View>
       </TouchableOpacity>
 
@@ -90,18 +92,22 @@ const HeaderButtons = ({ navigation }) => {
           padding: 2,
           borderRadius: 8,
           alignItems: 'center',
-          width: 150,
+          width: 'auto',
+          minWidth: 150,
           alignContent: 'center',
-          paddingLeft: 30,
+          paddingLeft: 10,
           height: 55
         }}>
           <Text style={{ color: '#ffffff' }}>Отправить</Text>
-          <AntDesign name="arrowright" size={20} left={20} color="white" />
+          <AntDesign name="arrowright" size={30} marginLeft='auto' color="white" />
         </View>
       </TouchableOpacity>
     </View>
   );
 };
+
+var previousScreen;
+console.log('dsadsa', previousScreen);
 
 const HomeScreen = ({ navigation }) => {
   const [hasPermission, setHasPermission] = React.useState(null);
@@ -118,10 +124,10 @@ const HomeScreen = ({ navigation }) => {
     });
 
     return unsubscribe;
-  }, [navigation]);
+  }, [navigation, previousScreen]);
 
   useFocusEffect(
-    React.useCallback(() => {
+    useCallback(() => {
       setHasPermission(null);
       requestCameraPermission();
     }, [])
@@ -157,6 +163,7 @@ const HomeScreen = ({ navigation }) => {
     return <Text>Доступ к камере запрещен</Text>;
   }
 
+  console.log('fdsfds', previousScreen);
   return (
     <View style={styles.container}>
       <BarCodeScanner
@@ -165,11 +172,41 @@ const HomeScreen = ({ navigation }) => {
       />
       <TopHeaderButtonsQR navigation={navigation} />
       <View style={styles.square}></View>
-    </View>
+      <TouchableOpacity
+        onPress={() => {
+          if (previousScreen !== undefined) {
+            console.log('click');
+            navigation.navigate(previousScreen);
+          } else {
+            navigation.navigate('Home');
+          }
+        }
+        }
+        style={{
+          flexDirection: 'row', backgroundColor: '#CCCCCC',
+          padding: 2,
+          borderRadius: 8,
+          alignItems: 'center',
+          width: 'auto',
+          minWidth: 150,
+          alignContent: 'center',
+          height: 55,
+          top: 670,
+          justifyContent: 'center',
+          alignSelf: 'center',
+          position: 'absolute',
+        }}
+      >
+        <Text style={{ color: '#ffffff' }}>Назад </Text>
+      </TouchableOpacity>
+    </View >
+
   );
 };
 
 const OfficeScreen = ({ navigation }) => {
+  previousScreen = useRoute().name;
+  console.log('sdasda', previousScreen);
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [selectedSubCategory, setSelectedSubCategory] = useState(null);
 
@@ -177,8 +214,9 @@ const OfficeScreen = ({ navigation }) => {
     <View style={styles.container}>
       <View style={styles.overlay}>
         <TopHeaderButtons navigation={navigation} />
-        <Text style={styles.overlayText}>Вы отсканировали QR-код:{'\n'}
-          <Text style={styles.overlayCategory}>офиса</Text></Text>
+        <View>
+          <Text style={styles.overlayText}>Вы отсканировали QR-код:{'\n'}
+            <View><Text style={styles.overlayCategory}>офиса</Text></View></Text></View>
         <View style={styles.categoryContainer}>
           <Text style={styles.categoryText}>Что вас интересует</Text>
 
@@ -220,7 +258,7 @@ const OfficeScreen = ({ navigation }) => {
           multiline={true}
           placeholderTextColor="#979aaa"
         />
-        <HeaderButtons navigation={navigation} />
+        <HeaderButtons navigation={navigation} previousScreen={previousScreen} />
 
       </View>
     </View>
@@ -230,13 +268,15 @@ const OfficeScreen = ({ navigation }) => {
 const MFUScreen = ({ navigation }) => {
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [selectedSubCategory, setSelectedSubCategory] = useState(null);
+  previousScreen = useRoute().name;
 
   return (
     <View style={styles.container}>
       <View style={styles.overlay}>
         <TopHeaderButtons navigation={navigation} />
-        <Text style={styles.overlayText}>Вы отсканировали QR-код:{'\n'}
-          <Text style={styles.overlayCategory}>МФУ</Text></Text>
+        <View>
+          <Text style={styles.overlayText}>Вы отсканировали QR-код:{'\n'}
+            <View><Text style={styles.overlayCategory}>МФУ</Text></View></Text></View>
         <View style={styles.categoryContainer}>
           <Text style={styles.categoryText}>Что вас интересует</Text>
           <View style={styles.categoryButtonContainer}>
@@ -306,20 +346,22 @@ const MFUScreen = ({ navigation }) => {
         <HeaderButtons navigation={navigation} />
 
       </View>
-    </View>
+    </View >
   );
 };
 
 const TableFixScreen = ({ navigation }) => {
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [selectedSubCategory, setSelectedSubCategory] = useState(null);
+  previousScreen = useRoute().name;
 
   return (
     <View style={styles.container}>
       <View style={styles.overlay}>
         <TopHeaderButtons navigation={navigation} />
-        <Text style={styles.overlayText}>Вы отсканировали QR-код:{'\n'}
-          <Text style={styles.overlayCategory}>стола</Text></Text>
+        <View>
+          <Text style={styles.overlayText}>Вы отсканировали QR-код:{'\n'}
+            <View><Text style={styles.overlayCategory}>стола</Text></View></Text></View>
         <View style={styles.categoryContainer}>
           <Text style={styles.categoryText}>Что вас интересует</Text>
 
@@ -354,14 +396,15 @@ const TableFixScreen = ({ navigation }) => {
 const ComputerFixScreen = ({ navigation }) => {
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [selectedSubCategory, setSelectedSubCategory] = useState(null);
+  previousScreen = useRoute().name;
 
   return (
     <View style={styles.container}>
       <View style={styles.overlay}>
         <TopHeaderButtons navigation={navigation} />
-        <Text style={styles.overlayText}>Вы отсканировали QR-код:{'\n'}
-            <Text style={styles.overlayCategory}>компьютера</Text>
-        </Text>
+        <View>
+          <Text style={styles.overlayText}>Вы отсканировали QR-код:{'\n'}
+            <View><Text style={styles.overlayCategory}>компьютера</Text></View></Text></View>
         <View style={styles.categoryContainer}>
           <Text style={styles.categoryText}>Что вас интересует</Text>
 
@@ -429,6 +472,11 @@ const App = () => {
           options={{ headerShown: false }}
         />
         <Stack.Screen
+          name="OfficeIntScreen"
+          component={OfficeIntScreen}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
           name="AdminScreen"
           component={AdminScreen}
           options={{ headerShown: false }}
@@ -490,11 +538,14 @@ const styles = StyleSheet.create({
     fontSize: 24,
     textAlign: 'center',
     textAlignVertical: "center",
+    marginBottom: 20
   },
   overlayCategory: {
     color: '#20242a',
     fontSize: 24,
     textAlign: 'center',
+    textAlignVertical: "center",
+    justifyContent: 'center',
     backgroundColor: "#f8cc37",
     borderRadius: 9,
   },
@@ -513,44 +564,46 @@ const styles = StyleSheet.create({
   },
   categoryButtonContainer: {
     flexDirection: 'row',
-    alignItems: 'center',
     justifyContent: 'center',
   },
   categoryButton: {
+    flex: 1,
     backgroundColor: '#42aaff',
     color: 'white',
     fontSize: 14,
     borderWidth: 1,
     borderColor: 'black',
     borderRadius: 20,
-    width: 100,
-    height: 40,
+    minWidth: 100,
+    minHeight: 40,
     margin: 2,
     alignItems: 'center',
     justifyContent: 'center',
   },
   mfuCategoryButton: {
+    flex: 1,
     backgroundColor: '#42aaff',
     color: 'white',
     fontSize: 14,
     borderWidth: 1,
     borderColor: 'black',
     borderRadius: 20,
-    width: 120,
-    height: 40,
+    minWidth: 100,
+    minHeight: 40,
     margin: 2,
     alignItems: 'center',
     justifyContent: 'center',
   },
   mfuSubCategoryButton: {
+    flex: 1,
     backgroundColor: '#42aaff',
     color: 'white',
     fontSize: 14,
     borderWidth: 1,
     borderColor: 'black',
     borderRadius: 20,
-    width: 120,
-    height: 40,
+    minWidth: 100,
+    minHeight: 40,
     margin: 2,
     alignItems: 'center',
     justifyContent: 'center',
@@ -558,16 +611,18 @@ const styles = StyleSheet.create({
   subCategoryContainer: {
     backgroundColor: '#78787e',
     borderRadius: 9,
+    marginBottom: 10
   },
   subCategoryButton: {
+    flex: 1,
     backgroundColor: '#42aaff',
     color: 'white',
     fontSize: 14,
     borderWidth: 1,
     borderColor: 'black',
     borderRadius: 20,
-    width: 100,
-    height: 40,
+    minWidth: 100,
+    minHeight: 40,
     margin: 2,
     alignItems: 'center',
     justifyContent: 'center',
@@ -601,10 +656,9 @@ const styles = StyleSheet.create({
   },
   topButtonsContainer: {
     position: 'fixed',
-    top: -70,
     flexDirection: 'row',
     paddingHorizontal: 20,
-    paddingTop: 0,
+    bottom: 100,
   },
   topButtonsContainerQR: {
     position: 'absolute',
@@ -635,6 +689,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     paddingHorizontal: 20,
+    top: 100
 
   },
 });
