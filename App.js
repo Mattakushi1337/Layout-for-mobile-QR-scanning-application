@@ -689,7 +689,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     paddingHorizontal: 20,
-    top: 100
+    top: 70
 
   },
 });
