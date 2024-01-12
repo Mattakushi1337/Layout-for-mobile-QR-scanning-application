@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, TextInput, Alert, StyleSheet, ScrollView } from 'react-native';
+import { View, Text, TouchableOpacity, TextInput, Alert, StyleSheet, ScrollView, KeyboardAvoidingView } from 'react-native';
 import { BarCodeScanner } from 'expo-barcode-scanner';
 import { NavigationContainer, useRoute, useFocusEffect } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
@@ -106,7 +106,6 @@ const HeaderButtons = ({ navigation }) => {
     );
 };
 var previousScreen;
-console.log('dsadsa', previousScreen);
 const AdminScreen = ({ navigation }) => {
     const [hasPermission, setHasPermission] = React.useState(null);
     const [alertShown, setAlertShown] = useState(false);
@@ -162,9 +161,9 @@ const AdminScreen = ({ navigation }) => {
     if (hasPermission === false) {
         return <Text>Доступ к камере запрещен</Text>;
     }
-    console.log('fdsfds', previousScreen);
 
     return (
+
         <View style={styles.container}>
             <BarCodeScanner
                 onBarCodeScanned={handleBarCodeScanned}
@@ -175,7 +174,6 @@ const AdminScreen = ({ navigation }) => {
             <TouchableOpacity
                 onPress={() => {
                     if (previousScreen !== undefined) {
-                        console.log('click');
                         navigation.navigate(previousScreen);
                     } else {
                         navigation.navigate('AdminScreen');
@@ -204,269 +202,301 @@ const AdminScreen = ({ navigation }) => {
 
 const OfficeIntScreen = ({ navigation }) => {
     previousScreen = useRoute().name;
-    console.log('sdasda', previousScreen);
-    const [location, setLocation] = useState('Республики 51');
+    const [location, setLocation] = useState('Красноярск, Республики 51, 10 этаж');
     const [model, setModel] = useState('Офис');
     const [serialNumber, setSerialNumber] = useState('Нет');
     const [description, setDescription] = useState('Нет');
     const [entryDate, setEntryDate] = useState('20.12.2007');
     return (
-        <View style={styles.container}>
-            <View style={styles.overlay}>
-                <TopHeaderButtons navigation={navigation} />
-                <Text style={styles.text}>Наименование:</Text>
-                <TextInput
-                    style={styles.inputName}
-                    placeholder="Наименование"
-                    value="офис"
-                    editable={false}
-                />
-                <Text style={styles.text}>Инвентарный номер:</Text>
-                <TextInput
-                    style={styles.inputNumber}
-                    placeholder="Инвентарный номер"
-                    value="53652345"
-                    editable={false}
-                />
-                <Text style={styles.text}>Место расположения:</Text>
-                <TextInput
-                    style={styles.input}
-                    placeholder="Место расположения"
-                    value={location}
-                    onChangeText={(text) => setLocation(text)}
-                />
-                <Text style={styles.text}>Модель:</Text>
-                <TextInput
-                    style={styles.input}
-                    placeholder="Модель"
-                    value={model}
-                    onChangeText={(text) => setModel(text)}
-                />
-                <Text style={styles.text}>Серийный номер:</Text>
-                <TextInput
-                    style={styles.input}
-                    placeholder="Серийный номер"
-                    value={serialNumber}
-                    onChangeText={(text) => setSerialNumber(text)}
-                />
-                <Text style={styles.text}>Описание:</Text>
-                <TextInput
-                    style={styles.input}
-                    placeholder="Описание"
-                    value={description}
-                    onChangeText={(text) => setDescription(text)}
-                />
-                <Text style={styles.text}>Дата ввода:</Text>
-                <TextInput
-                    style={styles.input}
-                    placeholder="Дата ввода"
-                    value={entryDate}
-                    onChangeText={(text) => setEntryDate(text)}
-                />
-                <HeaderButtons navigation={navigation} />
-            </View>
-        </View >
+        <ScrollView
+            contentContainerStyle={{ flexGrow: 1 }}
+            keyboardShouldPersistTaps="handled"
+        >
+            <KeyboardAvoidingView
+                style={{ flex: 1 }}
+            >
+                <View style={styles.container}>
+                    <View style={styles.overlay}>
+                        <TopHeaderButtons navigation={navigation} />
+                        <Text style={styles.text}>Наименование:</Text>
+                        <TextInput
+                            style={styles.inputName}
+                            placeholder="Наименование"
+                            value="Офис"
+                            editable={false}
+                        />
+                        <Text style={styles.text}>Инвентарный номер:</Text>
+                        <TextInput
+                            style={styles.inputNumber}
+                            placeholder="Инвентарный номер"
+                            value="53652345"
+                            editable={false}
+                        />
+                        <Text style={styles.text}>Место расположения:</Text>
+                        <TextInput
+                            style={styles.input}
+                            placeholder="Место расположения"
+                            value={location}
+                            onChangeText={(text) => setLocation(text)}
+                        />
+                        <Text style={styles.text}>Модель:</Text>
+                        <TextInput
+                            style={styles.input}
+                            placeholder="Модель"
+                            value={model}
+                            onChangeText={(text) => setModel(text)}
+                        />
+                        <Text style={styles.text}>Серийный номер:</Text>
+                        <TextInput
+                            style={styles.input}
+                            placeholder="Серийный номер"
+                            value={serialNumber}
+                            onChangeText={(text) => setSerialNumber(text)}
+                        />
+                        <Text style={styles.text}>Описание:</Text>
+                        <TextInput
+                            style={styles.input}
+                            placeholder="Описание"
+                            value={description}
+                            onChangeText={(text) => setDescription(text)}
+                        />
+                        <Text style={styles.text}>Дата ввода:</Text>
+                        <TextInput
+                            style={styles.input}
+                            placeholder="Дата ввода"
+                            value={entryDate}
+                            onChangeText={(text) => setEntryDate(text)}
+                        />
+                        <HeaderButtons navigation={navigation} />
+                    </View>
+                </View >
+            </KeyboardAvoidingView>
+        </ScrollView>
     );
 };
 
 const MFUIntScreen = ({ navigation }) => {
     previousScreen = useRoute().name;
-    console.log('sdasda', previousScreen);
-    const [location, setLocation] = useState('Республики 51');
-    const [model, setModel] = useState('FE122');
-    const [serialNumber, setSerialNumber] = useState('8453221');
+    const [location, setLocation] = useState('Красноярск, Республики 51, 10 этаж, кабинет 10-04');
+    const [model, setModel] = useState('HP LaserJet Pro 4103fdn');
+    const [serialNumber, setSerialNumber] = useState('2Z628A');
     const [description, setDescription] = useState('Исправен');
     const [entryDate, setEntryDate] = useState('22.11.2022');
     return (
-        <View style={styles.container}>
-            <View style={styles.overlay}>
-                <TopHeaderButtons navigation={navigation} />
-                <Text style={styles.text}>Наименование:</Text>
-                <TextInput
-                    style={styles.inputName}
-                    placeholder="Наименование"
-                    value="МФУ"
-                    editable={false}
-                />
-                <Text style={styles.text}>Инвентарный номер:</Text>
-                <TextInput
-                    style={styles.inputNumber}
-                    placeholder="Инвентарный номер"
-                    value="53652345"
-                    editable={false}
-                />
-                <Text style={styles.text}>Место расположения:</Text>
-                <TextInput
-                    style={styles.input}
-                    placeholder="Место расположения"
-                    value={location}
-                    onChangeText={(text) => setLocation(text)}
-                />
-                <Text style={styles.text}>Модель:</Text>
-                <TextInput
-                    style={styles.input}
-                    placeholder="Модель"
-                    value={model}
-                    onChangeText={(text) => setModel(text)}
-                />
-                <Text style={styles.text}>Серийный номер:</Text>
-                <TextInput
-                    style={styles.input}
-                    placeholder="Серийный номер"
-                    value={serialNumber}
-                    onChangeText={(text) => setSerialNumber(text)}
-                />
-                <Text style={styles.text}>Описание:</Text>
-                <TextInput
-                    style={styles.input}
-                    placeholder="Описание"
-                    value={description}
-                    onChangeText={(text) => setDescription(text)}
-                />
-                <Text style={styles.text}>Дата ввода:</Text>
-                <TextInput
-                    style={styles.input}
-                    placeholder="Дата ввода"
-                    value={entryDate}
-                    onChangeText={(text) => setEntryDate(text)}
-                />
-                <HeaderButtons navigation={navigation} />
-            </View>
-        </View >
+        <ScrollView
+            contentContainerStyle={{ flexGrow: 1 }}
+            keyboardShouldPersistTaps="handled"
+        >
+            <KeyboardAvoidingView
+                style={{ flex: 1 }}
+            >
+                <View style={styles.container}>
+                    <View style={styles.overlay}>
+                        <TopHeaderButtons navigation={navigation} />
+                        <Text style={styles.text}>Наименование:</Text>
+                        <TextInput
+                            style={styles.inputName}
+                            placeholder="Наименование"
+                            value="МФУ"
+                            editable={false}
+                        />
+                        <Text style={styles.text}>Инвентарный номер:</Text>
+                        <TextInput
+                            style={styles.inputNumber}
+                            placeholder="Инвентарный номер"
+                            value="53652345"
+                            editable={false}
+                        />
+                        <Text style={styles.text}>Место расположения:</Text>
+                        <TextInput
+                            style={styles.input}
+                            placeholder="Место расположения"
+                            value={location}
+                            onChangeText={(text) => setLocation(text)}
+                        />
+                        <Text style={styles.text}>Модель:</Text>
+                        <TextInput
+                            style={styles.input}
+                            placeholder="Модель"
+                            value={model}
+                            onChangeText={(text) => setModel(text)}
+                        />
+                        <Text style={styles.text}>Серийный номер:</Text>
+                        <TextInput
+                            style={styles.input}
+                            placeholder="Серийный номер"
+                            value={serialNumber}
+                            onChangeText={(text) => setSerialNumber(text)}
+                        />
+                        <Text style={styles.text}>Описание:</Text>
+                        <TextInput
+                            style={styles.input}
+                            placeholder="Описание"
+                            value={description}
+                            onChangeText={(text) => setDescription(text)}
+                        />
+                        <Text style={styles.text}>Дата ввода:</Text>
+                        <TextInput
+                            style={styles.input}
+                            placeholder="Дата ввода"
+                            value={entryDate}
+                            onChangeText={(text) => setEntryDate(text)}
+                        />
+                        <HeaderButtons navigation={navigation} />
+                    </View>
+                </View >
+            </KeyboardAvoidingView>
+        </ScrollView>
     );
 };
 
 const TableScreen = ({ navigation }) => {
     previousScreen = useRoute().name;
-    console.log('sdasda', previousScreen);
-    const [location, setLocation] = useState('Республики 51');
-    const [model, setModel] = useState('MDS312');
-    const [serialNumber, setSerialNumber] = useState('682643520');
+    const [location, setLocation] = useState('Красноярск, Республики 51, 10 этаж, кабинет 10-06');
+    const [model, setModel] = useState('ВИТАЛ-ПК Carry-3');
+    const [serialNumber, setSerialNumber] = useState('Нет');
     const [description, setDescription] = useState('Сломана ножка');
     const [entryDate, setEntryDate] = useState('01.01.2022');
     return (
-        <View style={styles.container}>
-            <View style={styles.overlay}>
-                <TopHeaderButtons navigation={navigation} />
-                <Text style={styles.text}>Наименование:</Text>
-                <TextInput
-                    style={styles.inputName}
-                    placeholder="Наименование"
-                    value="Стол"
-                    editable={false}
-                />
-                <Text style={styles.text}>Инвентарный номер:</Text>
-                <TextInput
-                    style={styles.inputNumber}
-                    placeholder="Инвентарный номер"
-                    value="123"
-                    editable={false}
-                />
-                <Text style={styles.text}>Место расположения:</Text>
-                <TextInput
-                    style={styles.input}
-                    placeholder="Место расположения"
-                    value={location}
-                    onChangeText={(text) => setLocation(text)}
-                />
-                <Text style={styles.text}>Модель:</Text>
-                <TextInput
-                    style={styles.input}
-                    placeholder="Модель"
-                    value={model}
-                    onChangeText={(text) => setModel(text)}
-                />
-                <Text style={styles.text}>Серийный номер:</Text>
-                <TextInput
-                    style={styles.input}
-                    placeholder="Серийный номер"
-                    value={serialNumber}
-                    onChangeText={(text) => setSerialNumber(text)}
-                />
-                <Text style={styles.text}>Описание:</Text>
-                <TextInput
-                    style={styles.input}
-                    placeholder="Описание"
-                    value={description}
-                    onChangeText={(text) => setDescription(text)}
-                />
-                <Text style={styles.text}>Дата ввода:</Text>
-                <TextInput
-                    style={styles.input}
-                    placeholder="Дата ввода"
-                    value={entryDate}
-                    onChangeText={(text) => setEntryDate(text)}
-                />
-                <HeaderButtons navigation={navigation} />
-            </View>
-        </View>
+        <ScrollView
+            contentContainerStyle={{ flexGrow: 1 }}
+            keyboardShouldPersistTaps="handled"
+        >
+            <KeyboardAvoidingView
+                style={{ flex: 1 }}
+            >
+                <View style={styles.container}>
+                    <View style={styles.overlay}>
+                        <TopHeaderButtons navigation={navigation} />
+                        <Text style={styles.text}>Наименование:</Text>
+                        <TextInput
+                            style={styles.inputName}
+                            placeholder="Наименование"
+                            value="Стол"
+                            editable={false}
+                        />
+                        <Text style={styles.text}>Инвентарный номер:</Text>
+                        <TextInput
+                            style={styles.inputNumber}
+                            placeholder="Инвентарный номер"
+                            value="123"
+                            editable={false}
+                        />
+                        <Text style={styles.text}>Место расположения:</Text>
+                        <TextInput
+                            style={styles.input}
+                            placeholder="Место расположения"
+                            value={location}
+                            onChangeText={(text) => setLocation(text)}
+                        />
+                        <Text style={styles.text}>Модель:</Text>
+                        <TextInput
+                            style={styles.input}
+                            placeholder="Модель"
+                            value={model}
+                            onChangeText={(text) => setModel(text)}
+                        />
+                        <Text style={styles.text}>Серийный номер:</Text>
+                        <TextInput
+                            style={styles.input}
+                            placeholder="Серийный номер"
+                            value={serialNumber}
+                            onChangeText={(text) => setSerialNumber(text)}
+                        />
+                        <Text style={styles.text}>Описание:</Text>
+                        <TextInput
+                            style={styles.input}
+                            placeholder="Описание"
+                            value={description}
+                            onChangeText={(text) => setDescription(text)}
+                        />
+                        <Text style={styles.text}>Дата ввода:</Text>
+                        <TextInput
+                            style={styles.input}
+                            placeholder="Дата ввода"
+                            value={entryDate}
+                            onChangeText={(text) => setEntryDate(text)}
+                        />
+                        <HeaderButtons navigation={navigation} />
+                    </View>
+                </View>
+            </KeyboardAvoidingView>
+        </ScrollView>
     );
 };
 
 const ComputerScreen = ({ navigation }) => {
     previousScreen = useRoute().name;
-    console.log('sdasda', previousScreen);
-    const [location, setLocation] = useState('Республики 51');
-    const [model, setModel] = useState('XLE532');
-    const [serialNumber, setSerialNumber] = useState('1247956528');
+    const [location, setLocation] = useState('Красноярск, Республики 51, 10 этаж, кабинет 10-05');
+    const [model, setModel] = useState('CHUWI HeroBox Intel N100');
+    const [serialNumber, setSerialNumber] = useState('48FC45Q');
     const [description, setDescription] = useState('Исправен');
     const [entryDate, setEntryDate] = useState('21.04.2023');
     return (
-        <View style={styles.container}>
-            <View style={styles.overlay}>
-                <TopHeaderButtons navigation={navigation} />
-                <Text style={styles.text}>Наименование:</Text>
-                <TextInput
-                    style={styles.inputName}
-                    placeholder="Наименование"
-                    value="Компьютер"
-                    editable={false}
-                />
-                <Text style={styles.text}>Инвентарный номер:</Text>
-                <TextInput
-                    style={styles.inputNumber}
-                    placeholder="Инвентарный номер"
-                    value="3213"
-                    editable={false}
-                />
-                <Text style={styles.text}>Место расположения:</Text>
-                <TextInput
-                    style={styles.input}
-                    placeholder="Место расположения"
-                    value={location}
-                    onChangeText={(text) => setLocation(text)}
-                />
-                <Text style={styles.text}>Модель:</Text>
-                <TextInput
-                    style={styles.input}
-                    placeholder="Модель"
-                    value={model}
-                    onChangeText={(text) => setModel(text)}
-                />
-                <Text style={styles.text}>Серийный номер:</Text>
-                <TextInput
-                    style={styles.input}
-                    placeholder="Серийный номер"
-                    value={serialNumber}
-                    onChangeText={(text) => setSerialNumber(text)}
-                />
-                <Text style={styles.text}>Описание:</Text>
-                <TextInput
-                    style={styles.input}
-                    placeholder="Описание"
-                    value={description}
-                    onChangeText={(text) => setDescription(text)}
-                />
-                <Text style={styles.text}>Дата ввода:</Text>
-                <TextInput
-                    style={styles.input}
-                    placeholder="Дата ввода"
-                    value={entryDate}
-                    onChangeText={(text) => setEntryDate(text)}
-                />
-                <HeaderButtons navigation={navigation} />
-            </View>
-        </View>
+        <ScrollView
+            contentContainerStyle={{ flexGrow: 1 }}
+            keyboardShouldPersistTaps="handled"
+        >
+            <KeyboardAvoidingView
+                style={{ flex: 1 }}
+            >
+                <View style={styles.container}>
+                    <View style={styles.overlay}>
+                        <TopHeaderButtons navigation={navigation} />
+                        <Text style={styles.text}>Наименование:</Text>
+                        <TextInput
+                            style={styles.inputName}
+                            placeholder="Наименование"
+                            value="Компьютер"
+                            editable={false}
+                        />
+                        <Text style={styles.text}>Инвентарный номер:</Text>
+                        <TextInput
+                            style={styles.inputNumber}
+                            placeholder="Инвентарный номер"
+                            value="3213"
+                            editable={false}
+                        />
+                        <Text style={styles.text}>Место расположения:</Text>
+                        <TextInput
+                            style={styles.input}
+                            placeholder="Место расположения"
+                            value={location}
+                            onChangeText={(text) => setLocation(text)}
+                        />
+                        <Text style={styles.text}>Модель:</Text>
+                        <TextInput
+                            style={styles.input}
+                            placeholder="Модель"
+                            value={model}
+                            onChangeText={(text) => setModel(text)}
+                        />
+                        <Text style={styles.text}>Серийный номер:</Text>
+                        <TextInput
+                            style={styles.input}
+                            placeholder="Серийный номер"
+                            value={serialNumber}
+                            onChangeText={(text) => setSerialNumber(text)}
+                        />
+                        <Text style={styles.text}>Описание:</Text>
+                        <TextInput
+                            style={styles.input}
+                            placeholder="Описание"
+                            value={description}
+                            onChangeText={(text) => setDescription(text)}
+                        />
+                        <Text style={styles.text}>Дата ввода:</Text>
+                        <TextInput
+                            style={styles.input}
+                            placeholder="Дата ввода"
+                            value={entryDate}
+                            onChangeText={(text) => setEntryDate(text)}
+                        />
+                        <HeaderButtons navigation={navigation} />
+                    </View>
+                </View>
+            </KeyboardAvoidingView>
+        </ScrollView>
     );
 };
 
@@ -532,10 +562,11 @@ const styles = StyleSheet.create({
         width: 100,
     },
     topButtonsContainer: {
-        position: 'fixed',
         flexDirection: 'row',
         paddingHorizontal: 20,
-        marginBottom: 30
+        alignSelf: 'flex-start',
+        marginTop: 30,
+        bottom: 30
     },
     topButtonsContainerQR: {
         position: 'absolute',
@@ -569,7 +600,8 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'space-between',
         paddingHorizontal: 20,
-        paddingTop: 30
+        marginTop: 30,
+        width: '100%',
     },
 });
 

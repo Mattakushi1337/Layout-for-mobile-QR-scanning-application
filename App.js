@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { View, Text, TouchableOpacity, TextInput, Alert, StyleSheet } from 'react-native';
+import { View, Text, TouchableOpacity, TextInput, Alert, StyleSheet, ScrollView, KeyboardAvoidingView } from 'react-native';
 import { BarCodeScanner } from 'expo-barcode-scanner';
 import { NavigationContainer, useRoute, useFocusEffect } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
@@ -107,7 +107,6 @@ const HeaderButtons = ({ navigation }) => {
 };
 
 var previousScreen;
-console.log('dsadsa', previousScreen);
 
 const HomeScreen = ({ navigation }) => {
   const [hasPermission, setHasPermission] = React.useState(null);
@@ -163,7 +162,6 @@ const HomeScreen = ({ navigation }) => {
     return <Text>Доступ к камере запрещен</Text>;
   }
 
-  console.log('fdsfds', previousScreen);
   return (
     <View style={styles.container}>
       <BarCodeScanner
@@ -175,7 +173,6 @@ const HomeScreen = ({ navigation }) => {
       <TouchableOpacity
         onPress={() => {
           if (previousScreen !== undefined) {
-            console.log('click');
             navigation.navigate(previousScreen);
           } else {
             navigation.navigate('Home');
@@ -206,62 +203,70 @@ const HomeScreen = ({ navigation }) => {
 
 const OfficeScreen = ({ navigation }) => {
   previousScreen = useRoute().name;
-  console.log('sdasda', previousScreen);
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [selectedSubCategory, setSelectedSubCategory] = useState(null);
 
   return (
-    <View style={styles.container}>
-      <View style={styles.overlay}>
-        <TopHeaderButtons navigation={navigation} />
-        <View>
-          <Text style={styles.overlayText}>Вы отсканировали QR-код:{'\n'}
-            <View><Text style={styles.overlayCategory}>офиса</Text></View></Text></View>
-        <View style={styles.categoryContainer}>
-          <Text style={styles.categoryText}>Что вас интересует</Text>
+    <ScrollView
+      contentContainerStyle={{ flexGrow: 1 }}
+      keyboardShouldPersistTaps="handled"
+    >
+      <KeyboardAvoidingView
+        style={{ flex: 1 }}
+      >
+        <View style={styles.container}>
+          <View style={styles.overlay}>
+            <TopHeaderButtons navigation={navigation} />
+            <View>
+              <Text style={styles.overlayText}>Вы отсканировали QR-код:{'\n'}
+                <View><Text style={styles.overlayCategory}>офиса</Text></View></Text></View>
+            <View style={styles.categoryContainer}>
+              <Text style={styles.categoryText}>Что вас интересует</Text>
 
-          <View style={styles.categoryButtonContainer}>
-            {categories.map((category) => (
-              <TouchableOpacity
-                key={category.label}
-                style={[styles.categoryButton, selectedCategory === category.label && styles.selectedButton]}
-                onPress={() => {
-                  setSelectedCategory(category.label);
-                  setSelectedSubCategory(null);
-                }}
-              >
-                <Text>{category.label}</Text>
-              </TouchableOpacity>
-            ))}
+              <View style={styles.categoryButtonContainer}>
+                {categories.map((category) => (
+                  <TouchableOpacity
+                    key={category.label}
+                    style={[styles.categoryButton, selectedCategory === category.label && styles.selectedButton]}
+                    onPress={() => {
+                      setSelectedCategory(category.label);
+                      setSelectedSubCategory(null);
+                    }}
+                  >
+                    <Text>{category.label}</Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            </View>
+
+            {selectedCategory === 'Освещение' && (
+              <View style={styles.subCategoryContainer}>
+                <View style={styles.categoryButtonContainer}>
+                  {subCategories.map((subCategory) => (
+                    <TouchableOpacity
+                      key={subCategory.label}
+                      style={[styles.subCategoryButton, selectedSubCategory === subCategory.label && styles.subSelectedButton]}
+                      onPress={() => setSelectedSubCategory(subCategory.label)}
+                    >
+                      <Text>{subCategory.label}</Text>
+                    </TouchableOpacity>
+                  ))}
+                </View>
+              </View>
+            )}
+
+            <TextInput
+              style={styles.input}
+              placeholder={selectedCategory ? 'Дополните свой запрос здесь' : 'Напишите свой запрос здесь'}
+              multiline={true}
+              placeholderTextColor="#979aaa"
+            />
+            <HeaderButtons navigation={navigation} previousScreen={previousScreen} />
+
           </View>
         </View>
-
-        {selectedCategory === 'Освещение' && (
-          <View style={styles.subCategoryContainer}>
-            <View style={styles.categoryButtonContainer}>
-              {subCategories.map((subCategory) => (
-                <TouchableOpacity
-                  key={subCategory.label}
-                  style={[styles.subCategoryButton, selectedSubCategory === subCategory.label && styles.subSelectedButton]}
-                  onPress={() => setSelectedSubCategory(subCategory.label)}
-                >
-                  <Text>{subCategory.label}</Text>
-                </TouchableOpacity>
-              ))}
-            </View>
-          </View>
-        )}
-
-        <TextInput
-          style={styles.input}
-          placeholder={selectedCategory ? 'Дополните свой запрос здесь' : 'Напишите свой запрос здесь'}
-          multiline={true}
-          placeholderTextColor="#979aaa"
-        />
-        <HeaderButtons navigation={navigation} previousScreen={previousScreen} />
-
-      </View>
-    </View>
+      </KeyboardAvoidingView>
+    </ScrollView>
   );
 };
 
@@ -271,82 +276,93 @@ const MFUScreen = ({ navigation }) => {
   previousScreen = useRoute().name;
 
   return (
-    <View style={styles.container}>
-      <View style={styles.overlay}>
-        <TopHeaderButtons navigation={navigation} />
-        <View>
-          <Text style={styles.overlayText}>Вы отсканировали QR-код:{'\n'}
-            <View><Text style={styles.overlayCategory}>МФУ</Text></View></Text></View>
-        <View style={styles.categoryContainer}>
-          <Text style={styles.categoryText}>Что вас интересует</Text>
-          <View style={styles.categoryButtonContainer}>
-            {mfuCategories.slice(0, 2).map((category) => (
-              <TouchableOpacity
-                key={category.label}
-                style={[styles.mfuCategoryButton, selectedCategory === category.label && styles.selectedButton]}
-                onPress={() => {
-                  setSelectedCategory(category.label);
-                  setSelectedSubCategory(null);
-                }}
-              >
-                <Text>{category.label}</Text>
-              </TouchableOpacity>
-            ))}
-          </View>
+    <ScrollView
+      contentContainerStyle={{ flexGrow: 1 }}
+      keyboardShouldPersistTaps="handled"
 
-          <View style={styles.categoryButtonContainer}>
-            {mfuCategories.slice(2).map((category) => (
-              <TouchableOpacity
-                key={category.label}
-                style={[styles.mfuCategoryButton, selectedCategory === category.label && styles.selectedButton]}
-                onPress={() => {
-                  setSelectedCategory(category.label);
-                  setSelectedSubCategory(null);
-                }}
-              >
-                <Text>{category.label}</Text>
-              </TouchableOpacity>
-            ))}
-          </View>
-        </View>
+    >
+      <KeyboardAvoidingView
+        style={{ flex: 1 }}
+      >
 
-        {selectedCategory === 'Замена картирджа' && (
-          <View style={styles.subCategoryContainer}>
-            <View style={styles.categoryButtonContainer}>
-              {cartridgeColors.slice(0, 2).map((color) => (
-                <TouchableOpacity
-                  key={color.label}
-                  style={[styles.mfuSubCategoryButton, selectedSubCategory === color.label && styles.subSelectedButton]}
-                  onPress={() => setSelectedSubCategory(color.label)}
-                >
-                  <Text>{color.label}</Text>
-                </TouchableOpacity>
-              ))}
+        <View style={styles.container}>
+          <View style={styles.overlay}>
+            <TopHeaderButtons navigation={navigation} />
+            <View>
+              <Text style={styles.overlayText}>Вы отсканировали QR-код:{'\n'}
+                <View><Text style={styles.overlayCategory}>МФУ</Text></View></Text></View>
+            <View style={styles.categoryContainer}>
+              <Text style={styles.categoryText}>Что вас интересует</Text>
+              <View style={styles.categoryButtonContainer}>
+                {mfuCategories.slice(0, 2).map((category) => (
+                  <TouchableOpacity
+                    key={category.label}
+                    style={[styles.mfuCategoryButton, selectedCategory === category.label && styles.selectedButton]}
+                    onPress={() => {
+                      setSelectedCategory(category.label);
+                      setSelectedSubCategory(null);
+                    }}
+                  >
+                    <Text>{category.label}</Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+
+              <View style={styles.categoryButtonContainer}>
+                {mfuCategories.slice(2).map((category) => (
+                  <TouchableOpacity
+                    key={category.label}
+                    style={[styles.mfuCategoryButton, selectedCategory === category.label && styles.selectedButton]}
+                    onPress={() => {
+                      setSelectedCategory(category.label);
+                      setSelectedSubCategory(null);
+                    }}
+                  >
+                    <Text>{category.label}</Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
             </View>
 
-            <View style={styles.categoryButtonContainer}>
-              {cartridgeColors.slice(2).map((color) => (
-                <TouchableOpacity
-                  key={color.label}
-                  style={[styles.mfuSubCategoryButton, selectedSubCategory === color.label && styles.subSelectedButton]}
-                  onPress={() => setSelectedSubCategory(color.label)}
-                >
-                  <Text>{color.label}</Text>
-                </TouchableOpacity>
-              ))}
-            </View>
-          </View>
-        )}
-        <TextInput
-          style={styles.input}
-          placeholder={selectedCategory ? 'Дополните свой запрос здесь' : 'Напишите свой запрос здесь'}
-          multiline={true}
-          placeholderTextColor="#979aaa"
-        />
-        <HeaderButtons navigation={navigation} />
+            {selectedCategory === 'Замена картирджа' && (
+              <View style={styles.subCategoryContainer}>
+                <View style={styles.categoryButtonContainer}>
+                  {cartridgeColors.slice(0, 2).map((color) => (
+                    <TouchableOpacity
+                      key={color.label}
+                      style={[styles.mfuSubCategoryButton, selectedSubCategory === color.label && styles.subSelectedButton]}
+                      onPress={() => setSelectedSubCategory(color.label)}
+                    >
+                      <Text>{color.label}</Text>
+                    </TouchableOpacity>
+                  ))}
+                </View>
 
-      </View>
-    </View >
+                <View style={styles.categoryButtonContainer}>
+                  {cartridgeColors.slice(2).map((color) => (
+                    <TouchableOpacity
+                      key={color.label}
+                      style={[styles.mfuSubCategoryButton, selectedSubCategory === color.label && styles.subSelectedButton]}
+                      onPress={() => setSelectedSubCategory(color.label)}
+                    >
+                      <Text>{color.label}</Text>
+                    </TouchableOpacity>
+                  ))}
+                </View>
+              </View>
+            )}
+            <TextInput
+              style={styles.input}
+              placeholder={selectedCategory ? 'Дополните свой запрос здесь' : 'Напишите свой запрос здесь'}
+              multiline={true}
+              placeholderTextColor="#979aaa"
+            />
+            <HeaderButtons navigation={navigation} />
+          </View>
+
+        </View >
+      </KeyboardAvoidingView>
+    </ScrollView>
   );
 };
 
@@ -356,41 +372,51 @@ const TableFixScreen = ({ navigation }) => {
   previousScreen = useRoute().name;
 
   return (
-    <View style={styles.container}>
-      <View style={styles.overlay}>
-        <TopHeaderButtons navigation={navigation} />
-        <View>
-          <Text style={styles.overlayText}>Вы отсканировали QR-код:{'\n'}
-            <View><Text style={styles.overlayCategory}>стола</Text></View></Text></View>
-        <View style={styles.categoryContainer}>
-          <Text style={styles.categoryText}>Что вас интересует</Text>
+    <ScrollView
+      contentContainerStyle={{ flexGrow: 1 }}
+      keyboardShouldPersistTaps="handled"
+    >
+      <KeyboardAvoidingView
+        style={{ flex: 1 }}
+      >
 
-          <View style={styles.categoryButtonContainer}>
-            {TableCategories.map((category) => (
-              <TouchableOpacity
-                key={category.label}
-                style={[styles.categoryButton, selectedCategory === category.label && styles.selectedButton]}
-                onPress={() => {
-                  setSelectedCategory(category.label);
-                  setSelectedSubCategory(null);
-                }}
-              >
-                <Text>{category.label}</Text>
-              </TouchableOpacity>
-            ))}
+        <View style={styles.container}>
+          <View style={styles.overlay}>
+            <TopHeaderButtons navigation={navigation} />
+            <View>
+              <Text style={styles.overlayText}>Вы отсканировали QR-код:{'\n'}
+                <View><Text style={styles.overlayCategory}>стола</Text></View></Text></View>
+            <View style={styles.categoryContainer}>
+              <Text style={styles.categoryText}>Что вас интересует</Text>
+
+              <View style={styles.categoryButtonContainer}>
+                {TableCategories.map((category) => (
+                  <TouchableOpacity
+                    key={category.label}
+                    style={[styles.categoryButton, selectedCategory === category.label && styles.selectedButton]}
+                    onPress={() => {
+                      setSelectedCategory(category.label);
+                      setSelectedSubCategory(null);
+                    }}
+                  >
+                    <Text>{category.label}</Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            </View>
+
+            <TextInput
+              style={styles.input}
+              placeholder={selectedCategory ? 'Дополните свой запрос здесь' : 'Напишите свой запрос здесь'}
+              multiline={true}
+              placeholderTextColor="#979aaa"
+            />
+            <HeaderButtons navigation={navigation} />
+
           </View>
         </View>
-
-        <TextInput
-          style={styles.input}
-          placeholder={selectedCategory ? 'Дополните свой запрос здесь' : 'Напишите свой запрос здесь'}
-          multiline={true}
-          placeholderTextColor="#979aaa"
-        />
-        <HeaderButtons navigation={navigation} />
-
-      </View>
-    </View>
+      </KeyboardAvoidingView>
+    </ScrollView>
   );
 };
 const ComputerFixScreen = ({ navigation }) => {
@@ -399,57 +425,66 @@ const ComputerFixScreen = ({ navigation }) => {
   previousScreen = useRoute().name;
 
   return (
-    <View style={styles.container}>
-      <View style={styles.overlay}>
-        <TopHeaderButtons navigation={navigation} />
-        <View>
-          <Text style={styles.overlayText}>Вы отсканировали QR-код:{'\n'}
-            <View><Text style={styles.overlayCategory}>компьютера</Text></View></Text></View>
-        <View style={styles.categoryContainer}>
-          <Text style={styles.categoryText}>Что вас интересует</Text>
+    <ScrollView
+      contentContainerStyle={{ flexGrow: 1 }}
+      keyboardShouldPersistTaps="handled"
+    >
+      <KeyboardAvoidingView
+        style={{ flex: 1 }}
+      >
+        <View style={styles.container}>
+          <View style={styles.overlay}>
+            <TopHeaderButtons navigation={navigation} />
+            <View>
+              <Text style={styles.overlayText}>Вы отсканировали QR-код:{'\n'}
+                <View><Text style={styles.overlayCategory}>компьютера</Text></View></Text></View>
+            <View style={styles.categoryContainer}>
+              <Text style={styles.categoryText}>Что вас интересует</Text>
 
-          <View style={styles.categoryButtonContainer}>
-            {computerCategories.map((category) => (
-              <TouchableOpacity
-                key={category.label}
-                style={[styles.categoryButton, selectedCategory === category.label && styles.selectedButton]}
-                onPress={() => {
-                  setSelectedCategory(category.label);
-                  setSelectedSubCategory(null);
-                }}
-              >
-                <Text>{category.label}</Text>
-              </TouchableOpacity>
-            ))}
+              <View style={styles.categoryButtonContainer}>
+                {computerCategories.map((category) => (
+                  <TouchableOpacity
+                    key={category.label}
+                    style={[styles.categoryButton, selectedCategory === category.label && styles.selectedButton]}
+                    onPress={() => {
+                      setSelectedCategory(category.label);
+                      setSelectedSubCategory(null);
+                    }}
+                  >
+                    <Text>{category.label}</Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            </View>
+
+            {selectedCategory === 'Системный блок' && (
+              <View style={styles.subCategoryContainer}>
+                <View style={styles.categoryButtonContainer}>
+                  {computerSubCategories.map((subCategory) => (
+                    <TouchableOpacity
+                      key={subCategory.label}
+                      style={[styles.subCategoryButton, selectedSubCategory === subCategory.label && styles.subSelectedButton]}
+                      onPress={() => setSelectedSubCategory(subCategory.label)}
+                    >
+                      <Text>{subCategory.label}</Text>
+                    </TouchableOpacity>
+                  ))}
+                </View>
+              </View>
+            )}
+
+            <TextInput
+              style={styles.input}
+              placeholder={selectedCategory ? 'Дополните свой запрос здесь' : 'Напишите свой запрос здесь'}
+              multiline={true}
+              placeholderTextColor="#979aaa"
+            />
+            <HeaderButtons navigation={navigation} />
+
           </View>
         </View>
-
-        {selectedCategory === 'Системный блок' && (
-          <View style={styles.subCategoryContainer}>
-            <View style={styles.categoryButtonContainer}>
-              {computerSubCategories.map((subCategory) => (
-                <TouchableOpacity
-                  key={subCategory.label}
-                  style={[styles.subCategoryButton, selectedSubCategory === subCategory.label && styles.subSelectedButton]}
-                  onPress={() => setSelectedSubCategory(subCategory.label)}
-                >
-                  <Text>{subCategory.label}</Text>
-                </TouchableOpacity>
-              ))}
-            </View>
-          </View>
-        )}
-
-        <TextInput
-          style={styles.input}
-          placeholder={selectedCategory ? 'Дополните свой запрос здесь' : 'Напишите свой запрос здесь'}
-          multiline={true}
-          placeholderTextColor="#979aaa"
-        />
-        <HeaderButtons navigation={navigation} />
-
-      </View>
-    </View>
+      </KeyboardAvoidingView>
+    </ScrollView>
   );
 };
 const App = () => {
@@ -538,7 +573,7 @@ const styles = StyleSheet.create({
     fontSize: 24,
     textAlign: 'center',
     textAlignVertical: "center",
-    marginBottom: 20
+    marginBottom: 10
   },
   overlayCategory: {
     color: '#20242a',
@@ -655,10 +690,11 @@ const styles = StyleSheet.create({
     width: 100,
   },
   topButtonsContainer: {
-    position: 'fixed',
     flexDirection: 'row',
     paddingHorizontal: 20,
-    bottom: 100,
+    alignSelf: 'flex-start',
+    marginTop: 30,
+    bottom: 30
   },
   topButtonsContainerQR: {
     position: 'absolute',
@@ -689,8 +725,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     paddingHorizontal: 20,
-    top: 70
-
+    marginTop: 70,
+    width: '100%',
   },
 });
 export { HomeScreen, MFUScreen };
