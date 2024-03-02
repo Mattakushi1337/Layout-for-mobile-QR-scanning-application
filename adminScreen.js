@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, TextInput, Alert, StyleSheet, ScrollView, KeyboardAvoidingView } from 'react-native';
 import { BarCodeScanner } from 'expo-barcode-scanner';
-import { NavigationContainer, useRoute, useFocusEffect } from '@react-navigation/native';
+import { useRoute, useFocusEffect } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { AntDesign, MaterialIcons } from '@expo/vector-icons';
+import { fio } from './App';
 
 const Stack = createStackNavigator();
 
@@ -59,52 +60,7 @@ const TopHeaderButtonsQR = ({ navigation }) => {
     );
 };
 
-const HeaderButtons = ({ navigation }) => {
-    return (
-        <View style={styles.buttonContainer}>
-            <TouchableOpacity
-                onPress={() => {
-                    navigation.goBack();
-                }}
-            >
-                <View style={{
-                    flexDirection: 'row', backgroundColor: '#CCCCCC',
-                    padding: 2,
-                    borderRadius: 8,
-                    alignItems: 'center',
-                    width: 'auto',
-                    minWidth: 150,
-                    alignContent: 'center',
-                    paddingLeft: 10,
-                    height: 55
-                }}>
-                    <Text style={{ color: '#ffffff' }}>Назад </Text>
-                    <MaterialIcons name="qr-code-2" size={50} marginLeft='auto' color="white" />
-                </View>
-            </TouchableOpacity>
 
-            <TouchableOpacity
-                style={styles.sendButton}
-                onPress={() => Alert.alert('Объект проверен')}
-            >
-                <View style={{
-                    flexDirection: 'row', backgroundColor: '#009b4d',
-                    padding: 2,
-                    borderRadius: 8,
-                    alignItems: 'center',
-                    width: 'auto',
-                    minWidth: 150,
-                    alignContent: 'center',
-                    paddingLeft: 10,
-                    height: 55
-                }}>
-                    <Text style={{ color: '#ffffff' }}>Проверено</Text>
-                    <AntDesign name="arrowright" size={30} marginLeft='auto' color="white" />
-                </View>
-            </TouchableOpacity>
-        </View>
-    );
-};
 var previousScreen;
 const AdminScreen = ({ navigation }) => {
     const [hasPermission, setHasPermission] = React.useState(null);
@@ -141,6 +97,12 @@ const AdminScreen = ({ navigation }) => {
             navigation.navigate('TableScreen');
         } else if (data === '4') {
             navigation.navigate('ComputerScreen');
+        } else if (data === '5') {
+            navigation.navigate('PhoneScreen');
+        } else if (data === '6') {
+            navigation.navigate('MonitorScreen');
+        } else if (data === '7') {
+            navigation.navigate('IBPScreen');
         } else {
             if (!alertShown) {
                 Alert.alert('QR код не существует', '', [
@@ -170,6 +132,7 @@ const AdminScreen = ({ navigation }) => {
                 style={StyleSheet.absoluteFillObject}
             />
             <TopHeaderButtonsQR navigation={navigation} />
+            <Text style={styles.fioText1}>{fio}</Text>
             <View style={styles.square}></View>
             <TouchableOpacity
                 onPress={() => {
@@ -202,11 +165,104 @@ const AdminScreen = ({ navigation }) => {
 
 const OfficeIntScreen = ({ navigation }) => {
     previousScreen = useRoute().name;
-    const [location, setLocation] = useState('Красноярск, Республики 51, 10 этаж');
+    const check = async () => {
+        try {
+            const apiUrl = `https://back.qrcds.site/IntData/1/update-check`;
+            const requestBody = {
+                check: 1
+            };
+            const response = await fetch(apiUrl, {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(requestBody),
+            });
+            console.log(JSON.stringify(requestBody));
+
+            if (!response.ok) {
+                console.error('Ошибка при отправке PATCH-запроса:', response);
+            } else {
+                console.log('Данные успешно обновлены');
+            }
+        } catch (error) {
+            console.error('Ошибка при выполнении PATCH-запроса:', error);
+        }
+    };
+    const fetchIntDataByName = async () => {
+        const name = 'Офис';
+        const apiUrl = `https://back.qrcds.site/IntData/${name}`;
+
+        try {
+            const response = await fetch(apiUrl);
+
+            if (!response.ok) {
+                console.error('Ошибка при получении данных:', response);
+                return null;
+            }
+
+            const responseBody = await response.text();
+
+            if (!responseBody) {
+                console.error('Тело ответа пусто');
+                return null;
+            }
+
+            const data = JSON.parse(responseBody);
+
+            setName(data.name);
+            setLocation(data.place);
+            setModel(data.model);
+            setSerialNumber(data.serialNumber);
+            setDescription(data.description);
+            setEntryDate(data.inDate);
+            setIntNumber(data.intNumber);
+
+        } catch (error) {
+            console.error('Ошибка при получении данных:', error);
+        }
+    };
+    const update = async () => {
+        try {
+            const apiUrl = `https://back.qrcds.site/IntData/1`;
+
+            const requestData = {
+                name: name,
+                place: place,
+                model: model,
+                serialNumber: serialNumber,
+                description: description,
+                inDate: inDate,
+            };
+
+            const response = await fetch(apiUrl, {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(requestData),
+            });
+            console.log(JSON.stringify(requestData));
+
+            if (!response.ok) {
+                console.error('Ошибка при отправке PATCH-запроса:', response);
+            } else {
+                console.log('Данные успешно обновлены');
+            }
+        } catch (error) {
+            console.error('Ошибка при выполнении PATCH-запроса:', error);
+        }
+    };
+    useEffect(() => {
+        fetchIntDataByName();
+    }, []);
+    const [name, setName] = useState('Красноярск, Республики 51, 10 этаж');
+    const [intNumber, setIntNumber] = useState('Красноярск, Республики 51, 10 этаж');
+    const [place, setLocation] = useState('Красноярск, Республики 51, 10 этаж');
     const [model, setModel] = useState('Офис');
     const [serialNumber, setSerialNumber] = useState('Нет');
     const [description, setDescription] = useState('Нет');
-    const [entryDate, setEntryDate] = useState('20.12.2007');
+    const [inDate, setEntryDate] = useState('20.12.2007');
     return (
         <ScrollView
             contentContainerStyle={{ flexGrow: 1 }}
@@ -218,25 +274,28 @@ const OfficeIntScreen = ({ navigation }) => {
                 <View style={styles.container}>
                     <View style={styles.overlay}>
                         <TopHeaderButtons navigation={navigation} />
+                        <View style={styles.fioTextContainer}>
+                            <Text style={styles.fioText}>{fio}</Text>
+                        </View>
                         <Text style={styles.text}>Наименование:</Text>
                         <TextInput
                             style={styles.inputName}
                             placeholder="Наименование"
-                            value="Офис"
+                            value={name}
                             editable={false}
                         />
                         <Text style={styles.text}>Инвентарный номер:</Text>
                         <TextInput
                             style={styles.inputNumber}
                             placeholder="Инвентарный номер"
-                            value="53652345"
+                            value={intNumber.toString()}
                             editable={false}
                         />
                         <Text style={styles.text}>Место расположения:</Text>
                         <TextInput
                             style={styles.input}
                             placeholder="Место расположения"
-                            value={location}
+                            value={place}
                             onChangeText={(text) => setLocation(text)}
                         />
                         <Text style={styles.text}>Модель:</Text>
@@ -264,10 +323,75 @@ const OfficeIntScreen = ({ navigation }) => {
                         <TextInput
                             style={styles.input}
                             placeholder="Дата ввода"
-                            value={entryDate}
+                            value={inDate}
                             onChangeText={(text) => setEntryDate(text)}
                         />
-                        <HeaderButtons navigation={navigation} />
+                        <TouchableOpacity
+                            onPress={() => {
+                                update();
+                                Alert.alert('Данные обновлены');
+                            }}
+                        >
+                            <View style={{
+                                flexDirection: 'row', backgroundColor: '#CCCCCC',
+                                padding: 2,
+                                borderRadius: 8,
+                                alignItems: 'center',
+                                width: 100,
+                                alignContent: 'center',
+                                justifyContent: 'center',
+                                alignSelf: 'center',
+                                paddingLeft: 10,
+                                height: 55
+                            }}>
+                                <Text style={{ color: '#ffffff' }}>Изменить </Text>
+                            </View>
+                        </TouchableOpacity>
+                        <View style={styles.buttonContainer}>
+                            <TouchableOpacity
+                                onPress={() => {
+                                    navigation.goBack();
+                                }}
+                            >
+                                <View style={{
+                                    flexDirection: 'row', backgroundColor: '#CCCCCC',
+                                    padding: 2,
+                                    borderRadius: 8,
+                                    alignItems: 'center',
+                                    width: 'auto',
+                                    minWidth: 150,
+                                    alignContent: 'center',
+                                    paddingLeft: 10,
+                                    height: 55
+                                }}>
+                                    <Text style={{ color: '#ffffff' }}>Назад </Text>
+                                    <MaterialIcons name="qr-code-2" size={50} marginLeft='auto' color="white" />
+                                </View>
+                            </TouchableOpacity>
+
+                            <TouchableOpacity
+                                style={styles.sendButton}
+                                onPress={() => {
+                                    Alert.alert('Объект проверен');
+                                    check()
+                                }}
+                            >
+                                <View style={{
+                                    flexDirection: 'row', backgroundColor: '#009b4d',
+                                    padding: 2,
+                                    borderRadius: 8,
+                                    alignItems: 'center',
+                                    width: 'auto',
+                                    minWidth: 150,
+                                    alignContent: 'center',
+                                    paddingLeft: 10,
+                                    height: 55
+                                }}>
+                                    <Text style={{ color: '#ffffff' }}>Проверено</Text>
+                                    <AntDesign name="arrowright" size={30} marginLeft='auto' color="white" />
+                                </View>
+                            </TouchableOpacity>
+                        </View>
                     </View>
                 </View >
             </KeyboardAvoidingView>
@@ -277,11 +401,89 @@ const OfficeIntScreen = ({ navigation }) => {
 
 const MFUIntScreen = ({ navigation }) => {
     previousScreen = useRoute().name;
-    const [location, setLocation] = useState('Красноярск, Республики 51, 10 этаж, кабинет 10-04');
+    const check = async () => {
+        try {
+            const apiUrl = `https://back.qrcds.site/IntData/2/update-check`;
+
+            const response = await fetch(apiUrl, {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            });
+
+            if (!response.ok) {
+                console.error('Ошибка при отправке PATCH-запроса:', response);
+            } else {
+                console.log('Данные успешно обновлены');
+            }
+        } catch (error) {
+            console.error('Ошибка при выполнении PATCH-запроса:', error);
+        }
+    };
+
+    const fetchIntDataByName = async () => {
+        const name = 'МФУ';
+        const apiUrl = `https://back.qrcds.site/IntData/${encodeURIComponent(name)}`;
+
+        try {
+            const response = await fetch(apiUrl);
+            if (!response.ok) {
+                console.error('Ошибка при получении данных:', response);
+                return null;
+            }
+            const data = await response.json();
+            setName(data.name);
+            setLocation(data.place);
+            setModel(data.model);
+            setSerialNumber(data.serialNumber);
+            setDescription(data.description);
+            setEntryDate(data.inDate);
+            setIntNumber(data.intNumber)
+        } catch (error) {
+            console.error('Ошибка при получении данных:', error);
+        }
+    };
+    const update = async () => {
+        try {
+            const apiUrl = `https://back.qrcds.site/IntData/2`;
+
+            const response = await fetch(apiUrl, {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    name: name,
+                    place: place,
+                    model: model,
+                    serialNumber: serialNumber,
+                    description: description,
+                    inDate: inDate,
+                }),
+            });
+
+            if (!response.ok) {
+                console.error('Ошибка при отправке PATCH-запроса:', response);
+            } else {
+                console.log('Данные успешно обновлены');
+            }
+        } catch (error) {
+            console.error('Ошибка при выполнении PATCH-запроса:', error);
+        }
+    };
+    useEffect(() => {
+        fetchIntDataByName();
+    }, []);
+
+
+    const [name, setName] = useState('Красноярск, Республики 51, 10 этаж');
+    const [intNumber, setIntNumber] = useState('Красноярск, Республики 51, 10 этаж');
+    const [place, setLocation] = useState('Красноярск, Республики 51, 10 этаж, кабинет 10-04');
     const [model, setModel] = useState('HP LaserJet Pro 4103fdn');
     const [serialNumber, setSerialNumber] = useState('2Z628A');
     const [description, setDescription] = useState('Исправен');
-    const [entryDate, setEntryDate] = useState('22.11.2022');
+    const [inDate, setEntryDate] = useState('22.11.2022');
     return (
         <ScrollView
             contentContainerStyle={{ flexGrow: 1 }}
@@ -293,25 +495,28 @@ const MFUIntScreen = ({ navigation }) => {
                 <View style={styles.container}>
                     <View style={styles.overlay}>
                         <TopHeaderButtons navigation={navigation} />
+                        <View style={styles.fioTextContainer}>
+                            <Text style={styles.fioText}>{fio}</Text>
+                        </View>
                         <Text style={styles.text}>Наименование:</Text>
                         <TextInput
                             style={styles.inputName}
                             placeholder="Наименование"
-                            value="МФУ"
+                            value={name}
                             editable={false}
                         />
                         <Text style={styles.text}>Инвентарный номер:</Text>
                         <TextInput
                             style={styles.inputNumber}
                             placeholder="Инвентарный номер"
-                            value="53652345"
+                            value={intNumber.toString()}
                             editable={false}
                         />
                         <Text style={styles.text}>Место расположения:</Text>
                         <TextInput
                             style={styles.input}
                             placeholder="Место расположения"
-                            value={location}
+                            value={place}
                             onChangeText={(text) => setLocation(text)}
                         />
                         <Text style={styles.text}>Модель:</Text>
@@ -339,10 +544,74 @@ const MFUIntScreen = ({ navigation }) => {
                         <TextInput
                             style={styles.input}
                             placeholder="Дата ввода"
-                            value={entryDate}
+                            value={inDate}
                             onChangeText={(text) => setEntryDate(text)}
                         />
-                        <HeaderButtons navigation={navigation} />
+                        <TouchableOpacity
+                            onPress={() => {
+                                update();
+                                Alert.alert('Данные обновлены');
+                            }}
+                        >
+                            <View style={{
+                                flexDirection: 'row', backgroundColor: '#CCCCCC',
+                                padding: 2,
+                                borderRadius: 8,
+                                alignItems: 'center',
+                                width: 100,
+                                alignContent: 'center',
+                                justifyContent: 'center',
+                                alignSelf: 'center',
+                                paddingLeft: 10,
+                                height: 55
+                            }}>
+                                <Text style={{ color: '#ffffff' }}>Изменить </Text>
+                            </View>
+                        </TouchableOpacity>
+                        <View style={styles.buttonContainer}>
+                            <TouchableOpacity
+                                onPress={() => {
+                                    navigation.goBack();
+                                }}
+                            >
+                                <View style={{
+                                    flexDirection: 'row', backgroundColor: '#CCCCCC',
+                                    padding: 2,
+                                    borderRadius: 8,
+                                    alignItems: 'center',
+                                    width: 'auto',
+                                    minWidth: 150,
+                                    alignContent: 'center',
+                                    paddingLeft: 10,
+                                    height: 55
+                                }}>
+                                    <Text style={{ color: '#ffffff' }}>Назад </Text>
+                                    <MaterialIcons name="qr-code-2" size={50} marginLeft='auto' color="white" />
+                                </View>
+                            </TouchableOpacity>
+
+                            <TouchableOpacity
+                                style={styles.sendButton}
+                                onPress={() => {
+                                    Alert.alert('Объект проверен');
+                                    check()
+                                }}                            >
+                                <View style={{
+                                    flexDirection: 'row', backgroundColor: '#009b4d',
+                                    padding: 2,
+                                    borderRadius: 8,
+                                    alignItems: 'center',
+                                    width: 'auto',
+                                    minWidth: 150,
+                                    alignContent: 'center',
+                                    paddingLeft: 10,
+                                    height: 55
+                                }}>
+                                    <Text style={{ color: '#ffffff' }}>Проверено</Text>
+                                    <AntDesign name="arrowright" size={30} marginLeft='auto' color="white" />
+                                </View>
+                            </TouchableOpacity>
+                        </View>
                     </View>
                 </View >
             </KeyboardAvoidingView>
@@ -352,11 +621,85 @@ const MFUIntScreen = ({ navigation }) => {
 
 const TableScreen = ({ navigation }) => {
     previousScreen = useRoute().name;
-    const [location, setLocation] = useState('Красноярск, Республики 51, 10 этаж, кабинет 10-06');
+    const check = async () => {
+        try {
+            const apiUrl = `https://back.qrcds.site/IntData/3/update-check`;
+
+            const response = await fetch(apiUrl, {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            });
+
+            if (!response.ok) {
+                console.error('Ошибка при отправке PATCH-запроса:', response);
+            } else {
+                console.log('Данные успешно обновлены');
+            }
+        } catch (error) {
+            console.error('Ошибка при выполнении PATCH-запроса:', error);
+        }
+    };
+    const fetchIntDataByName = async () => {
+        const name = 'Стол';
+        const apiUrl = `https://back.qrcds.site/IntData/${encodeURIComponent(name)}`;
+
+        try {
+            const response = await fetch(apiUrl);
+            if (!response.ok) {
+                console.error('Ошибка при получении данных:', response);
+                return null;
+            }
+            const data = await response.json();
+            setName(data.name);
+            setLocation(data.place);
+            setModel(data.model);
+            setSerialNumber(data.serialNumber);
+            setDescription(data.description);
+            setEntryDate(data.inDate);
+            setIntNumber(data.intNumber)
+        } catch (error) {
+            console.error('Ошибка при получении данных:', error);
+        }
+    };
+    const update = async () => {
+        try {
+            const apiUrl = `https://back.qrcds.site/IntData/3`;
+
+            const response = await fetch(apiUrl, {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    place: place,
+                    model: model,
+                    serialNumber: serialNumber,
+                    description: description,
+                    inDate: inDate,
+                }),
+            });
+
+            if (!response.ok) {
+                console.error('Ошибка при отправке PATCH-запроса:', response);
+            } else {
+                console.log('Данные успешно обновлены');
+            }
+        } catch (error) {
+            console.error('Ошибка при выполнении PATCH-запроса:', error);
+        }
+    };
+    useEffect(() => {
+        fetchIntDataByName();
+    }, []);
+    const [name, setName] = useState('Красноярск, Республики 51, 10 этаж');
+    const [intNumber, setIntNumber] = useState('Красноярск, Республики 51, 10 этаж');
+    const [place, setLocation] = useState('Красноярск, Республики 51, 10 этаж, кабинет 10-06');
     const [model, setModel] = useState('ВИТАЛ-ПК Carry-3');
     const [serialNumber, setSerialNumber] = useState('Нет');
     const [description, setDescription] = useState('Сломана ножка');
-    const [entryDate, setEntryDate] = useState('01.01.2022');
+    const [inDate, setEntryDate] = useState('01.01.2022');
     return (
         <ScrollView
             contentContainerStyle={{ flexGrow: 1 }}
@@ -368,25 +711,28 @@ const TableScreen = ({ navigation }) => {
                 <View style={styles.container}>
                     <View style={styles.overlay}>
                         <TopHeaderButtons navigation={navigation} />
+                        <View style={styles.fioTextContainer}>
+                            <Text style={styles.fioText}>{fio}</Text>
+                        </View>
                         <Text style={styles.text}>Наименование:</Text>
                         <TextInput
                             style={styles.inputName}
                             placeholder="Наименование"
-                            value="Стол"
+                            value={name}
                             editable={false}
                         />
                         <Text style={styles.text}>Инвентарный номер:</Text>
                         <TextInput
                             style={styles.inputNumber}
                             placeholder="Инвентарный номер"
-                            value="123"
+                            value={intNumber.toString()}
                             editable={false}
                         />
                         <Text style={styles.text}>Место расположения:</Text>
                         <TextInput
                             style={styles.input}
                             placeholder="Место расположения"
-                            value={location}
+                            value={place}
                             onChangeText={(text) => setLocation(text)}
                         />
                         <Text style={styles.text}>Модель:</Text>
@@ -414,10 +760,74 @@ const TableScreen = ({ navigation }) => {
                         <TextInput
                             style={styles.input}
                             placeholder="Дата ввода"
-                            value={entryDate}
+                            value={inDate}
                             onChangeText={(text) => setEntryDate(text)}
                         />
-                        <HeaderButtons navigation={navigation} />
+                        <TouchableOpacity
+                            onPress={() => {
+                                update();
+                                Alert.alert('Данные обновлены');
+                            }}
+                        >
+                            <View style={{
+                                flexDirection: 'row', backgroundColor: '#CCCCCC',
+                                padding: 2,
+                                borderRadius: 8,
+                                alignItems: 'center',
+                                width: 100,
+                                alignContent: 'center',
+                                justifyContent: 'center',
+                                alignSelf: 'center',
+                                paddingLeft: 10,
+                                height: 55
+                            }}>
+                                <Text style={{ color: '#ffffff' }}>Изменить </Text>
+                            </View>
+                        </TouchableOpacity>
+                        <View style={styles.buttonContainer}>
+                            <TouchableOpacity
+                                onPress={() => {
+                                    navigation.goBack();
+                                }}
+                            >
+                                <View style={{
+                                    flexDirection: 'row', backgroundColor: '#CCCCCC',
+                                    padding: 2,
+                                    borderRadius: 8,
+                                    alignItems: 'center',
+                                    width: 'auto',
+                                    minWidth: 150,
+                                    alignContent: 'center',
+                                    paddingLeft: 10,
+                                    height: 55
+                                }}>
+                                    <Text style={{ color: '#ffffff' }}>Назад </Text>
+                                    <MaterialIcons name="qr-code-2" size={50} marginLeft='auto' color="white" />
+                                </View>
+                            </TouchableOpacity>
+
+                            <TouchableOpacity
+                                style={styles.sendButton}
+                                onPress={() => {
+                                    Alert.alert('Объект проверен');
+                                    check()
+                                }}                            >
+                                <View style={{
+                                    flexDirection: 'row', backgroundColor: '#009b4d',
+                                    padding: 2,
+                                    borderRadius: 8,
+                                    alignItems: 'center',
+                                    width: 'auto',
+                                    minWidth: 150,
+                                    alignContent: 'center',
+                                    paddingLeft: 10,
+                                    height: 55
+                                }}>
+                                    <Text style={{ color: '#ffffff' }}>Проверено</Text>
+                                    <AntDesign name="arrowright" size={30} marginLeft='auto' color="white" />
+                                </View>
+                            </TouchableOpacity>
+                        </View>
                     </View>
                 </View>
             </KeyboardAvoidingView>
@@ -427,11 +837,86 @@ const TableScreen = ({ navigation }) => {
 
 const ComputerScreen = ({ navigation }) => {
     previousScreen = useRoute().name;
-    const [location, setLocation] = useState('Красноярск, Республики 51, 10 этаж, кабинет 10-05');
+    const check = async () => {
+        try {
+            const apiUrl = `https://back.qrcds.site/IntData/4/update-check`;
+
+            const response = await fetch(apiUrl, {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            });
+
+            if (!response.ok) {
+                console.error('Ошибка при отправке PATCH-запроса:', response);
+            } else {
+                console.log('Данные успешно обновлены');
+            }
+        } catch (error) {
+            console.error('Ошибка при выполнении PATCH-запроса:', error);
+        }
+    };
+
+    const fetchIntDataByName = async () => {
+        const name = 'Компьютер';
+        const apiUrl = `https://back.qrcds.site/IntData/${encodeURIComponent(name)}`;
+
+        try {
+            const response = await fetch(apiUrl);
+            if (!response.ok) {
+                console.error('Ошибка при получении данных:', response);
+                return null;
+            }
+            const data = await response.json();
+            setName(data.name);
+            setLocation(data.place);
+            setModel(data.model);
+            setSerialNumber(data.serialNumber);
+            setDescription(data.description);
+            setEntryDate(data.inDate);
+            setIntNumber(data.intNumber)
+        } catch (error) {
+            console.error('Ошибка при получении данных:', error);
+        }
+    };
+    const update = async () => {
+        try {
+            const apiUrl = `https://back.qrcds.site/IntData/4`;
+
+            const response = await fetch(apiUrl, {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    place: place,
+                    model: model,
+                    serialNumber: serialNumber,
+                    description: description,
+                    inDate: inDate,
+                }),
+            });
+
+            if (!response.ok) {
+                console.error('Ошибка при отправке PATCH-запроса:', response);
+            } else {
+                console.log('Данные успешно обновлены');
+            }
+        } catch (error) {
+            console.error('Ошибка при выполнении PATCH-запроса:', error);
+        }
+    };
+    useEffect(() => {
+        fetchIntDataByName();
+    }, []);
+    const [name, setName] = useState('Красноярск, Республики 51, 10 этаж');
+    const [intNumber, setIntNumber] = useState('Красноярск, Республики 51, 10 этаж');
+    const [place, setLocation] = useState('Красноярск, Республики 51, 10 этаж, кабинет 10-05');
     const [model, setModel] = useState('CHUWI HeroBox Intel N100');
     const [serialNumber, setSerialNumber] = useState('48FC45Q');
     const [description, setDescription] = useState('Исправен');
-    const [entryDate, setEntryDate] = useState('21.04.2023');
+    const [inDate, setEntryDate] = useState('21.04.2023');
     return (
         <ScrollView
             contentContainerStyle={{ flexGrow: 1 }}
@@ -443,25 +928,28 @@ const ComputerScreen = ({ navigation }) => {
                 <View style={styles.container}>
                     <View style={styles.overlay}>
                         <TopHeaderButtons navigation={navigation} />
+                        <View style={styles.fioTextContainer}>
+                            <Text style={styles.fioText}>{fio}</Text>
+                        </View>
                         <Text style={styles.text}>Наименование:</Text>
                         <TextInput
                             style={styles.inputName}
                             placeholder="Наименование"
-                            value="Компьютер"
+                            value={name}
                             editable={false}
                         />
                         <Text style={styles.text}>Инвентарный номер:</Text>
                         <TextInput
                             style={styles.inputNumber}
                             placeholder="Инвентарный номер"
-                            value="3213"
+                            value={intNumber.toString()}
                             editable={false}
                         />
                         <Text style={styles.text}>Место расположения:</Text>
                         <TextInput
                             style={styles.input}
                             placeholder="Место расположения"
-                            value={location}
+                            value={place}
                             onChangeText={(text) => setLocation(text)}
                         />
                         <Text style={styles.text}>Модель:</Text>
@@ -489,10 +977,291 @@ const ComputerScreen = ({ navigation }) => {
                         <TextInput
                             style={styles.input}
                             placeholder="Дата ввода"
-                            value={entryDate}
+                            value={inDate}
                             onChangeText={(text) => setEntryDate(text)}
                         />
-                        <HeaderButtons navigation={navigation} />
+                        <TouchableOpacity
+                            onPress={() => {
+                                update();
+                                Alert.alert('Данные обновлены');
+                            }}
+                        >
+                            <View style={{
+                                flexDirection: 'row', backgroundColor: '#CCCCCC',
+                                padding: 2,
+                                borderRadius: 8,
+                                alignItems: 'center',
+                                width: 100,
+                                alignContent: 'center',
+                                justifyContent: 'center',
+                                alignSelf: 'center',
+                                paddingLeft: 10,
+                                height: 55
+                            }}>
+                                <Text style={{ color: '#ffffff' }}>Изменить </Text>
+                            </View>
+                        </TouchableOpacity>
+                        <View style={styles.buttonContainer}>
+                            <TouchableOpacity
+                                onPress={() => {
+                                    navigation.goBack();
+                                }}
+                            >
+                                <View style={{
+                                    flexDirection: 'row', backgroundColor: '#CCCCCC',
+                                    padding: 2,
+                                    borderRadius: 8,
+                                    alignItems: 'center',
+                                    width: 'auto',
+                                    minWidth: 150,
+                                    alignContent: 'center',
+                                    paddingLeft: 10,
+                                    height: 55
+                                }}>
+                                    <Text style={{ color: '#ffffff' }}>Назад </Text>
+                                    <MaterialIcons name="qr-code-2" size={50} marginLeft='auto' color="white" />
+                                </View>
+                            </TouchableOpacity>
+
+                            <TouchableOpacity
+                                style={styles.sendButton}
+                                onPress={() => {
+                                    Alert.alert('Объект проверен');
+                                    check()
+                                }}                            >
+                                <View style={{
+                                    flexDirection: 'row', backgroundColor: '#009b4d',
+                                    padding: 2,
+                                    borderRadius: 8,
+                                    alignItems: 'center',
+                                    width: 'auto',
+                                    minWidth: 150,
+                                    alignContent: 'center',
+                                    paddingLeft: 10,
+                                    height: 55
+                                }}>
+                                    <Text style={{ color: '#ffffff' }}>Проверено</Text>
+                                    <AntDesign name="arrowright" size={30} marginLeft='auto' color="white" />
+                                </View>
+                            </TouchableOpacity>
+                        </View>
+                    </View>
+                </View>
+            </KeyboardAvoidingView>
+        </ScrollView>
+    );
+};
+const PhoneScreen = ({ navigation }) => {
+    previousScreen = useRoute().name;
+    const check = async () => {
+        try {
+            const apiUrl = `https://back.qrcds.site/IntData/4/update-check`;
+
+            const response = await fetch(apiUrl, {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            });
+
+            if (!response.ok) {
+                console.error('Ошибка при отправке PATCH-запроса:', response);
+            } else {
+                console.log('Данные успешно обновлены');
+            }
+        } catch (error) {
+            console.error('Ошибка при выполнении PATCH-запроса:', error);
+        }
+    };
+
+    const fetchIntDataByName = async () => {
+        const name = 'phone';
+        const apiUrl = `https://back.qrcds.site/IntData/${encodeURIComponent(name)}`;
+
+        try {
+            const response = await fetch(apiUrl);
+            if (!response.ok) {
+                console.error('Ошибка при получении данных:', response);
+                return null;
+            }
+            const data = await response.json();
+            setName(data.name);
+            setLocation(data.place);
+            setModel(data.model);
+            setSerialNumber(data.serialNumber);
+            setDescription(data.description);
+            setEntryDate(data.inDate);
+            setIntNumber(data.intNumber)
+        } catch (error) {
+            console.error('Ошибка при получении данных:', error);
+        }
+    };
+    const update = async () => {
+        try {
+            const apiUrl = `https://back.qrcds.site/IntData/55532`;
+
+            const response = await fetch(apiUrl, {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    name: name,
+                    place: place,
+                    model: model,
+                    serialNumber: serialNumber,
+                    description: description,
+                    inDate: inDate,
+                }),
+            });
+
+            if (!response.ok) {
+                console.error('Ошибка при отправке PATCH-запроса:', response);
+            } else {
+                console.log('Данные успешно обновлены');
+            }
+        } catch (error) {
+            console.error('Ошибка при выполнении PATCH-запроса:', error);
+        }
+    };
+    useEffect(() => {
+        fetchIntDataByName();
+    }, []);
+    const [name, setName] = useState('Красноярск, Республики 51, 10 этаж');
+    const [intNumber, setIntNumber] = useState('Красноярск, Республики 51, 10 этаж');
+    const [place, setLocation] = useState('Красноярск, Республики 51, 10 этаж, кабинет 10-05');
+    const [model, setModel] = useState('CHUWI HeroBox Intel N100');
+    const [serialNumber, setSerialNumber] = useState('48FC45Q');
+    const [description, setDescription] = useState('Исправен');
+    const [inDate, setEntryDate] = useState('21.04.2023');
+    return (
+        <ScrollView
+            contentContainerStyle={{ flexGrow: 1 }}
+            keyboardShouldPersistTaps="handled"
+        >
+            <KeyboardAvoidingView
+                style={{ flex: 1 }}
+            >
+                <View style={styles.container}>
+                    <View style={styles.overlay}>
+                        <TopHeaderButtons navigation={navigation} />
+                        <View style={styles.fioTextContainer}>
+                            <Text style={styles.fioText}>{fio}</Text>
+                        </View>
+                        <Text style={styles.text}>Наименование:</Text>
+                        <TextInput
+                            style={styles.inputName}
+                            placeholder="Наименование"
+                            value={name}
+                            onChangeText={(text) => setName(text)}
+                        />
+                        <Text style={styles.text}>Инвентарный номер:</Text>
+                        <TextInput
+                            style={styles.inputNumber}
+                            placeholder="Инвентарный номер"
+                            value={intNumber.toString()}
+                            editable={false}
+                        />
+                        <Text style={styles.text}>Место расположения:</Text>
+                        <TextInput
+                            style={styles.input}
+                            placeholder="Место расположения"
+                            value={place}
+                            onChangeText={(text) => setLocation(text)}
+                        />
+                        <Text style={styles.text}>Модель:</Text>
+                        <TextInput
+                            style={styles.input}
+                            placeholder="Модель"
+                            value={model}
+                            onChangeText={(text) => setModel(text)}
+                        />
+                        <Text style={styles.text}>Серийный номер:</Text>
+                        <TextInput
+                            style={styles.input}
+                            placeholder="Серийный номер"
+                            value={serialNumber}
+                            onChangeText={(text) => setSerialNumber(text)}
+                        />
+                        <Text style={styles.text}>Описание:</Text>
+                        <TextInput
+                            style={styles.input}
+                            placeholder="Описание"
+                            value={description}
+                            onChangeText={(text) => setDescription(text)}
+                        />
+                        <Text style={styles.text}>Дата ввода:</Text>
+                        <TextInput
+                            style={styles.input}
+                            placeholder="Дата ввода"
+                            value={inDate}
+                            onChangeText={(text) => setEntryDate(text)}
+                        />
+                        <TouchableOpacity
+                            onPress={() => {
+                                update();
+                                Alert.alert('Данные обновлены');
+                            }}
+                        >
+                            <View style={{
+                                flexDirection: 'row', backgroundColor: '#CCCCCC',
+                                padding: 2,
+                                borderRadius: 8,
+                                alignItems: 'center',
+                                width: 100,
+                                alignContent: 'center',
+                                justifyContent: 'center',
+                                alignSelf: 'center',
+                                paddingLeft: 10,
+                                height: 55
+                            }}>
+                                <Text style={{ color: '#ffffff' }}>Изменить </Text>
+                            </View>
+                        </TouchableOpacity>
+                        <View style={styles.buttonContainer}>
+                            <TouchableOpacity
+                                onPress={() => {
+                                    navigation.goBack();
+                                }}
+                            >
+                                <View style={{
+                                    flexDirection: 'row', backgroundColor: '#CCCCCC',
+                                    padding: 2,
+                                    borderRadius: 8,
+                                    alignItems: 'center',
+                                    width: 'auto',
+                                    minWidth: 150,
+                                    alignContent: 'center',
+                                    paddingLeft: 10,
+                                    height: 55
+                                }}>
+                                    <Text style={{ color: '#ffffff' }}>Назад </Text>
+                                    <MaterialIcons name="qr-code-2" size={50} marginLeft='auto' color="white" />
+                                </View>
+                            </TouchableOpacity>
+
+                            <TouchableOpacity
+                                style={styles.sendButton}
+                                onPress={() => {
+                                    Alert.alert('Объект проверен');
+                                    check()
+                                }}                            >
+                                <View style={{
+                                    flexDirection: 'row', backgroundColor: '#009b4d',
+                                    padding: 2,
+                                    borderRadius: 8,
+                                    alignItems: 'center',
+                                    width: 'auto',
+                                    minWidth: 150,
+                                    alignContent: 'center',
+                                    paddingLeft: 10,
+                                    height: 55
+                                }}>
+                                    <Text style={{ color: '#ffffff' }}>Проверено</Text>
+                                    <AntDesign name="arrowright" size={30} marginLeft='auto' color="white" />
+                                </View>
+                            </TouchableOpacity>
+                        </View>
                     </View>
                 </View>
             </KeyboardAvoidingView>
@@ -500,7 +1269,446 @@ const ComputerScreen = ({ navigation }) => {
     );
 };
 
-export { AdminScreen, TableScreen, ComputerScreen, MFUIntScreen, OfficeIntScreen };
+const MonitorScreen = ({ navigation }) => {
+    previousScreen = useRoute().name;
+    const check = async () => {
+        try {
+            const apiUrl = `https://back.qrcds.site/IntData/4/update-check`;
+
+            const response = await fetch(apiUrl, {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            });
+
+            if (!response.ok) {
+                console.error('Ошибка при отправке PATCH-запроса:', response);
+            } else {
+                console.log('Данные успешно обновлены');
+            }
+        } catch (error) {
+            console.error('Ошибка при выполнении PATCH-запроса:', error);
+        }
+    };
+
+    const fetchIntDataByName = async () => {
+        const name = 'monitor';
+        const apiUrl = `https://back.qrcds.site/IntData/${encodeURIComponent(name)}`;
+
+        try {
+            const response = await fetch(apiUrl);
+            if (!response.ok) {
+                console.error('Ошибка при получении данных:', response);
+                return null;
+            }
+            const data = await response.json();
+            setName(data.name);
+            setLocation(data.place);
+            setModel(data.model);
+            setSerialNumber(data.serialNumber);
+            setDescription(data.description);
+            setEntryDate(data.inDate);
+            setIntNumber(data.intNumber)
+        } catch (error) {
+            console.error('Ошибка при получении данных:', error);
+        }
+    };
+    const update = async () => {
+        try {
+            const apiUrl = `https://back.qrcds.site/IntData/55523`;
+
+            const response = await fetch(apiUrl, {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    name: name,
+                    place: place,
+                    model: model,
+                    serialNumber: serialNumber,
+                    description: description,
+                    inDate: inDate,
+                }),
+            });
+
+            if (!response.ok) {
+                console.error('Ошибка при отправке PATCH-запроса:', response);
+            } else {
+                console.log('Данные успешно обновлены');
+            }
+        } catch (error) {
+            console.error('Ошибка при выполнении PATCH-запроса:', error);
+        }
+    };
+    useEffect(() => {
+        fetchIntDataByName();
+    }, []);
+    const [name, setName] = useState('Красноярск, Республики 51, 10 этаж');
+    const [intNumber, setIntNumber] = useState('Красноярск, Республики 51, 10 этаж');
+    const [place, setLocation] = useState('Красноярск, Республики 51, 10 этаж, кабинет 10-05');
+    const [model, setModel] = useState('CHUWI HeroBox Intel N100');
+    const [serialNumber, setSerialNumber] = useState('48FC45Q');
+    const [description, setDescription] = useState('Исправен');
+    const [inDate, setEntryDate] = useState('21.04.2023');
+    return (
+        <ScrollView
+            contentContainerStyle={{ flexGrow: 1 }}
+            keyboardShouldPersistTaps="handled"
+        >
+            <KeyboardAvoidingView
+                style={{ flex: 1 }}
+            >
+                <View style={styles.container}>
+                    <View style={styles.overlay}>
+                        <TopHeaderButtons navigation={navigation} />
+                        <View style={styles.fioTextContainer}>
+                            <Text style={styles.fioText}>{fio}</Text>
+                        </View>
+                        <Text style={styles.text}>Наименование:</Text>
+                        <TextInput
+                            style={styles.inputName}
+                            placeholder="Наименование"
+                            value={name}
+                            onChangeText={(text) => setName(text)}
+                        />
+                        <Text style={styles.text}>Инвентарный номер:</Text>
+                        <TextInput
+                            style={styles.inputNumber}
+                            placeholder="Инвентарный номер"
+                            value={intNumber.toString()}
+                            editable={false}
+                        />
+                        <Text style={styles.text}>Место расположения:</Text>
+                        <TextInput
+                            style={styles.input}
+                            placeholder="Место расположения"
+                            value={place}
+                            onChangeText={(text) => setLocation(text)}
+                        />
+                        <Text style={styles.text}>Модель:</Text>
+                        <TextInput
+                            style={styles.input}
+                            placeholder="Модель"
+                            value={model}
+                            onChangeText={(text) => setModel(text)}
+                        />
+                        <Text style={styles.text}>Серийный номер:</Text>
+                        <TextInput
+                            style={styles.input}
+                            placeholder="Серийный номер"
+                            value={serialNumber}
+                            onChangeText={(text) => setSerialNumber(text)}
+                        />
+                        <Text style={styles.text}>Описание:</Text>
+                        <TextInput
+                            style={styles.input}
+                            placeholder="Описание"
+                            value={description}
+                            onChangeText={(text) => setDescription(text)}
+                        />
+                        <Text style={styles.text}>Дата ввода:</Text>
+                        <TextInput
+                            style={styles.input}
+                            placeholder="Дата ввода"
+                            value={inDate}
+                            onChangeText={(text) => setEntryDate(text)}
+                        />
+                        <TouchableOpacity
+                            onPress={() => {
+                                update();
+                                Alert.alert('Данные обновлены');
+                            }}
+                        >
+                            <View style={{
+                                flexDirection: 'row', backgroundColor: '#CCCCCC',
+                                padding: 2,
+                                borderRadius: 8,
+                                alignItems: 'center',
+                                width: 100,
+                                alignContent: 'center',
+                                justifyContent: 'center',
+                                alignSelf: 'center',
+                                paddingLeft: 10,
+                                height: 55
+                            }}>
+                                <Text style={{ color: '#ffffff' }}>Изменить </Text>
+                            </View>
+                        </TouchableOpacity>
+                        <View style={styles.buttonContainer}>
+                            <TouchableOpacity
+                                onPress={() => {
+                                    navigation.goBack();
+                                }}
+                            >
+                                <View style={{
+                                    flexDirection: 'row', backgroundColor: '#CCCCCC',
+                                    padding: 2,
+                                    borderRadius: 8,
+                                    alignItems: 'center',
+                                    width: 'auto',
+                                    minWidth: 150,
+                                    alignContent: 'center',
+                                    paddingLeft: 10,
+                                    height: 55
+                                }}>
+                                    <Text style={{ color: '#ffffff' }}>Назад </Text>
+                                    <MaterialIcons name="qr-code-2" size={50} marginLeft='auto' color="white" />
+                                </View>
+                            </TouchableOpacity>
+
+                            <TouchableOpacity
+                                style={styles.sendButton}
+                                onPress={() => {
+                                    Alert.alert('Объект проверен');
+                                    check()
+                                }}                            >
+                                <View style={{
+                                    flexDirection: 'row', backgroundColor: '#009b4d',
+                                    padding: 2,
+                                    borderRadius: 8,
+                                    alignItems: 'center',
+                                    width: 'auto',
+                                    minWidth: 150,
+                                    alignContent: 'center',
+                                    paddingLeft: 10,
+                                    height: 55
+                                }}>
+                                    <Text style={{ color: '#ffffff' }}>Проверено</Text>
+                                    <AntDesign name="arrowright" size={30} marginLeft='auto' color="white" />
+                                </View>
+                            </TouchableOpacity>
+                        </View>
+                    </View>
+                </View>
+            </KeyboardAvoidingView>
+        </ScrollView>
+    );
+};
+
+const IBPScreen = ({ navigation }) => {
+    previousScreen = useRoute().name;
+    const check = async () => {
+        try {
+            const apiUrl = `https://back.qrcds.site/IntData/4/update-check`;
+
+            const response = await fetch(apiUrl, {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            });
+
+            if (!response.ok) {
+                console.error('Ошибка при отправке PATCH-запроса:', response);
+            } else {
+                console.log('Данные успешно обновлены');
+            }
+        } catch (error) {
+            console.error('Ошибка при выполнении PATCH-запроса:', error);
+        }
+    };
+
+    const fetchIntDataByName = async () => {
+        const name = 'ibp';
+        const apiUrl = `https://back.qrcds.site/IntData/${encodeURIComponent(name)}`;
+
+        try {
+            const response = await fetch(apiUrl);
+            if (!response.ok) {
+                console.error('Ошибка при получении данных:', response);
+                return null;
+            }
+            const data = await response.json();
+            setName(data.name);
+            setLocation(data.place);
+            setModel(data.model);
+            setSerialNumber(data.serialNumber);
+            setDescription(data.description);
+            setEntryDate(data.inDate);
+            setIntNumber(data.intNumber)
+        } catch (error) {
+            console.error('Ошибка при получении данных:', error);
+        }
+    };
+    const update = async () => {
+        try {
+            const apiUrl = `https://back.qrcds.site/IntData/62116`;
+
+            const response = await fetch(apiUrl, {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    place: place,
+                    model: model,
+                    serialNumber: serialNumber,
+                    description: description,
+                    inDate: inDate,
+                }),
+            });
+
+            if (!response.ok) {
+                console.error('Ошибка при отправке PATCH-запроса:', response);
+            } else {
+                console.log('Данные успешно обновлены');
+            }
+        } catch (error) {
+            console.error('Ошибка при выполнении PATCH-запроса:', error);
+        }
+    };
+    useEffect(() => {
+        fetchIntDataByName();
+    }, []);
+    const [name, setName] = useState('Красноярск, Республики 51, 10 этаж');
+    const [intNumber, setIntNumber] = useState('Красноярск, Республики 51, 10 этаж');
+    const [place, setLocation] = useState('Красноярск, Республики 51, 10 этаж, кабинет 10-05');
+    const [model, setModel] = useState('CHUWI HeroBox Intel N100');
+    const [serialNumber, setSerialNumber] = useState('48FC45Q');
+    const [description, setDescription] = useState('Исправен');
+    const [inDate, setEntryDate] = useState('21.04.2023');
+    return (
+        <ScrollView
+            contentContainerStyle={{ flexGrow: 1 }}
+            keyboardShouldPersistTaps="handled"
+        >
+            <KeyboardAvoidingView
+                style={{ flex: 1 }}
+            >
+                <View style={styles.container}>
+                    <View style={styles.overlay}>
+                        <TopHeaderButtons navigation={navigation} />
+                        <View style={styles.fioTextContainer}>
+                            <Text style={styles.fioText}>{fio}</Text>
+                        </View>
+                        <Text style={styles.text}>Наименование:</Text>
+                        <TextInput
+                            style={styles.inputName}
+                            placeholder="Наименование"
+                            value={name}
+                            onChangeText={(text) => setName(text)}
+                        />
+                        <Text style={styles.text}>Инвентарный номер:</Text>
+                        <TextInput
+                            style={styles.inputNumber}
+                            placeholder="Инвентарный номер"
+                            value={intNumber.toString()}
+                            editable={false}
+                        />
+                        <Text style={styles.text}>Место расположения:</Text>
+                        <TextInput
+                            style={styles.input}
+                            placeholder="Место расположения"
+                            value={place}
+                            onChangeText={(text) => setLocation(text)}
+                        />
+                        <Text style={styles.text}>Модель:</Text>
+                        <TextInput
+                            style={styles.input}
+                            placeholder="Модель"
+                            value={model}
+                            onChangeText={(text) => setModel(text)}
+                        />
+                        <Text style={styles.text}>Серийный номер:</Text>
+                        <TextInput
+                            style={styles.input}
+                            placeholder="Серийный номер"
+                            value={serialNumber}
+                            onChangeText={(text) => setSerialNumber(text)}
+                        />
+                        <Text style={styles.text}>Описание:</Text>
+                        <TextInput
+                            style={styles.input}
+                            placeholder="Описание"
+                            value={description}
+                            onChangeText={(text) => setDescription(text)}
+                        />
+                        <Text style={styles.text}>Дата ввода:</Text>
+                        <TextInput
+                            style={styles.input}
+                            placeholder="Дата ввода"
+                            value={inDate}
+                            onChangeText={(text) => setEntryDate(text)}
+                        />
+                        <TouchableOpacity
+                            onPress={() => {
+                                update();
+                                Alert.alert('Данные обновлены');
+                            }}
+                        >
+                            <View style={{
+                                flexDirection: 'row', backgroundColor: '#CCCCCC',
+                                padding: 2,
+                                borderRadius: 8,
+                                alignItems: 'center',
+                                width: 100,
+                                alignContent: 'center',
+                                justifyContent: 'center',
+                                alignSelf: 'center',
+                                paddingLeft: 10,
+                                height: 55
+                            }}>
+                                <Text style={{ color: '#ffffff' }}>Изменить </Text>
+                            </View>
+                        </TouchableOpacity>
+                        <View style={styles.buttonContainer}>
+                            <TouchableOpacity
+                                onPress={() => {
+                                    navigation.goBack();
+                                }}
+                            >
+                                <View style={{
+                                    flexDirection: 'row', backgroundColor: '#CCCCCC',
+                                    padding: 2,
+                                    borderRadius: 8,
+                                    alignItems: 'center',
+                                    width: 'auto',
+                                    minWidth: 150,
+                                    alignContent: 'center',
+                                    paddingLeft: 10,
+                                    height: 55
+                                }}>
+                                    <Text style={{ color: '#ffffff' }}>Назад </Text>
+                                    <MaterialIcons name="qr-code-2" size={50} marginLeft='auto' color="white" />
+                                </View>
+                            </TouchableOpacity>
+
+                            <TouchableOpacity
+                                style={styles.sendButton}
+                                onPress={() => {
+                                    Alert.alert('Объект проверен');
+                                    check()
+                                }}                            >
+                                <View style={{
+                                    flexDirection: 'row', backgroundColor: '#009b4d',
+                                    padding: 2,
+                                    borderRadius: 8,
+                                    alignItems: 'center',
+                                    width: 'auto',
+                                    minWidth: 150,
+                                    alignContent: 'center',
+                                    paddingLeft: 10,
+                                    height: 55
+                                }}>
+                                    <Text style={{ color: '#ffffff' }}>Проверено</Text>
+                                    <AntDesign name="arrowright" size={30} marginLeft='auto' color="white" />
+                                </View>
+                            </TouchableOpacity>
+                        </View>
+                    </View>
+                </View>
+            </KeyboardAvoidingView>
+        </ScrollView>
+    );
+};
+
+export {
+    AdminScreen, TableScreen, ComputerScreen, MFUIntScreen,
+    OfficeIntScreen, PhoneScreen, MonitorScreen, IBPScreen,
+
+};
 
 const styles = StyleSheet.create({
     container: {
@@ -565,8 +1773,8 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         paddingHorizontal: 20,
         alignSelf: 'flex-start',
-        marginTop: 30,
-        bottom: 30
+        marginTop: 70,
+        bottom: 10
     },
     topButtonsContainerQR: {
         position: 'absolute',
@@ -603,6 +1811,22 @@ const styles = StyleSheet.create({
         marginTop: 30,
         width: '100%',
     },
+    fioTextContainer: {
+        marginBottom: 60,
+    },
+    fioText: {
+        fontSize: 18,
+        color: 'white',
+        position: 'absolute',
+        alignSelf: 'center'
+    },
+    fioText1: {
+        fontSize: 18,
+        color: 'white',
+        position: 'absolute',
+        top: 140,
+        alignSelf: 'center'
+    }
 });
 
 export default AdminScreen;
