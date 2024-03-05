@@ -2,7 +2,7 @@
   "expo": {
     "name": "QR CDS",
     "slug": "qr",
-    "version": "1.1.5",
+    "version": "1.1.6",
     "orientation": "portrait",
     "icon": "./assets/QR_CDS.png",
     "userInterfaceStyle": "light",
@@ -18,6 +18,7 @@
       "supportsTablet": true
     },
     "android": {
+      "permissions": ["CAMERA"],
       "adaptiveIcon": {
         "foregroundImage": "./assets/QR_CDS.png",
         "backgroundColor": "#ffffff"

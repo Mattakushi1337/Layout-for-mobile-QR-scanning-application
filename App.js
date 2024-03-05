@@ -1,12 +1,14 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { View, Text, TouchableOpacity, TextInput, Alert, Modal, StyleSheet, ScrollView, KeyboardAvoidingView, ActivityIndicator } from 'react-native';
-import { BarCodeScanner } from 'expo-barcode-scanner';
+import { View, Dimensions, Text, TouchableOpacity, TouchableWithoutFeedback, TextInput, Alert, Modal, StyleSheet, ScrollView, KeyboardAvoidingView, ActivityIndicator } from 'react-native';
 import { NavigationContainer, useRoute, useFocusEffect } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { AntDesign, MaterialIcons } from '@expo/vector-icons';
 import AdminScreen, { TableScreen, ComputerScreen, MFUIntScreen, OfficeIntScreen } from './adminScreen';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import Torch from 'react-native-torch';
+import BarcodeMask from 'react-native-barcode-mask';
+import { Camera } from 'expo-camera';
+import { Ionicons } from '@expo/vector-icons';
+
 
 const Stack = createStackNavigator();
 const clearAsyncStorage = async () => {
@@ -147,48 +149,40 @@ const FioList = ({ onSelectFio }) => {
 
 var previousScreen;
 var fio;
+const finderWidth = 280;
+const finderHeight = 280;
+const width = Dimensions.get('window').width;
+const height = Dimensions.get('window').height;
+
 const HomeScreen = ({ navigation }) => {
-  const [hasPermission, setHasPermission] = React.useState(null);
+  const [hasPermission, setHasPermission] = useState(null);
   const [alertShown, setAlertShown] = useState(false);
   const [isModalVisible, setIsModalVisible] = useState(true);
-  const [isTorchOn, setIsTorchOn] = useState(false);
+  const [flashMode, setFlashMode] = useState(Camera.Constants.FlashMode.off);
 
   const requestCameraPermission = async () => {
-    const { status } = await BarCodeScanner.requestPermissionsAsync();
+    const { status } = await Camera.requestCameraPermissionsAsync();
     setHasPermission(status === 'granted');
   };
 
   useEffect(() => {
+
     const unsubscribe = navigation.addListener('blur', () => {
       setHasPermission(null);
     });
-
     return unsubscribe;
   }, [navigation, previousScreen]);
 
-  useEffect(() => {
-    const requestPermission = async () => {
-      const { status } = await BarCodeScanner.requestPermissionsAsync();
-      setHasPermission(status === 'granted');
-      if (status === 'granted') {
-        Torch.switchState(isTorchOn);
-      } else {
-        console.log('Permission not granted');
-      }
-    };
-  
-    requestPermission();
-  }, [isTorchOn]);
-
-
-  const toggleTorch = () => {
-    setIsTorchOn((prev) => !prev);
-  };
 
   useFocusEffect(
     useCallback(() => {
+      const requestPermission = async () => {
+        const { status } = await Camera.requestCameraPermissionsAsync();
+        setHasPermission(status === 'granted');
+      };
+
       setHasPermission(null);
-      requestCameraPermission();
+      requestPermission();
     }, [])
   );
 
@@ -233,6 +227,7 @@ const HomeScreen = ({ navigation }) => {
         ]);
         setAlertShown(true);
       }
+
     }
   };
 
@@ -249,6 +244,13 @@ const HomeScreen = ({ navigation }) => {
     closeModal();
   };
 
+  const toggleFlash = () => {
+    setFlashMode(
+      flashMode === Camera.Constants.FlashMode.off
+        ? Camera.Constants.FlashMode.torch
+        : Camera.Constants.FlashMode.off
+    );
+  };
 
   if (hasPermission === null) {
     return <Text>Запрос разрешений на камеру...</Text>;
@@ -260,14 +262,36 @@ const HomeScreen = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
+      <Camera
+        style={styles.camera}
+        flashMode={flashMode}
+        onBarCodeScanned={(data) => {
+          if (!isModalVisible) {
+            handleBarCodeScanned(data);
+          }
+        }}
 
-      <BarCodeScanner
+      >
+        <TouchableOpacity style={styles.flashButton} onPress={toggleFlash}>
+          <Ionicons name={flashMode === Camera.Constants.FlashMode.off ? 'flash' : 'flash-off'} size={24} color="white" />
+        </TouchableOpacity>
+        <View
+          style={{
+            flex: 1,
+            backgroundColor: 'transparent',
+            flexDirection: 'row',
+          }}>
+        </View>
+        <BarcodeMask edgeColor="white" showAnimatedLine={false} width={330} height={330} />
+      </Camera>
+
+      {/* <BarCodeScanner
         onBarCodeScanned={(data) => {
           if (!isModalVisible) {
             handleBarCodeScanned(data);
           }
         }} style={StyleSheet.absoluteFillObject}
-      />
+      /> */}
       {/* <TopHeaderButtonsQR navigation={navigation} /> */}
 
       {/* {!isModalVisible && fio ? (
@@ -281,9 +305,6 @@ const HomeScreen = ({ navigation }) => {
       >
         <Text style={{ color: '#ffffff' }}>Назад </Text>
       </TouchableOpacity> */}
-      <TouchableOpacity onPress={toggleTorch} style={styles.torchButton}>
-        <Text>{isTorchOn ? 'Turn on' : 'Turn off'}</Text>
-      </TouchableOpacity>
       <Modal
         visible={isModalVisible}
         animationType="slide"
@@ -294,7 +315,8 @@ const HomeScreen = ({ navigation }) => {
           <FioList onSelectFio={handleSelectFio} />
         </View>
       </Modal>
-      <View style={styles.square}></View>
+      <Text style={styles.scanText}>Отсканируйте QR-код</Text>
+
       <TouchableOpacity
         onPress={() => {
           if (previousScreen !== undefined) {
@@ -3255,16 +3277,15 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
     justifyContent: 'center',
   },
-
-  square: {
-    width: 200,
-    height: 200,
-    borderWidth: 2,
-    borderColor: 'white',
-    borderRadius: 9,
+  camera: {
+    flex: 1,
+  },
+  scanText: {
     alignSelf: 'center',
     position: 'absolute',
-    backgroundColor: 'rgba(0, 0, 0, 0)',
+    top: 200,
+    color: 'white',
+    fontSize: 18,
   },
   overlay: {
     backgroundColor: '#20242a',
@@ -3477,7 +3498,24 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 140,
     alignSelf: 'center'
-  }
+  },
+  buttonStyle: {
+    justifyContent: 'center',
+    marginTop: 15,
+    padding: 10,
+    backgroundColor: '#8ad24e',
+    marginRight: 2,
+    marginLeft: 2,
+  },
+  buttonTextStyle: {
+    color: '#fff',
+    textAlign: 'center',
+  },
+  flashButton: {
+    position: 'absolute',
+    top: 90,
+    right: 20,
+  },
 });
 export { HomeScreen, MFUScreen, OfficeScreen, fio };
 
