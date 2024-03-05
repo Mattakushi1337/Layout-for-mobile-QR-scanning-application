@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { View, Dimensions, Text, TouchableOpacity, TouchableWithoutFeedback, TextInput, Alert, Modal, StyleSheet, ScrollView, KeyboardAvoidingView, ActivityIndicator } from 'react-native';
 import { NavigationContainer, useRoute, useFocusEffect } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
@@ -6,7 +6,7 @@ import { AntDesign, MaterialIcons } from '@expo/vector-icons';
 import AdminScreen, { TableScreen, ComputerScreen, MFUIntScreen, OfficeIntScreen } from './adminScreen';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import BarcodeMask from 'react-native-barcode-mask';
-import { Camera } from 'expo-camera';
+import { Camera, CameraType } from 'expo-camera';
 import { Ionicons } from '@expo/vector-icons';
 
 
@@ -263,6 +263,8 @@ const HomeScreen = ({ navigation }) => {
   return (
     <View style={styles.container}>
       <Camera
+        ratio='16:9'
+        type={CameraType.back}
         style={styles.camera}
         flashMode={flashMode}
         onBarCodeScanned={(data) => {
@@ -356,6 +358,7 @@ const OfficeScreen = ({ navigation }) => {
   const [selectedSubCategory, setSelectedSubCategory] = useState('');
   const [description, setDescription] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const scrollViewRef = useRef();
 
   var place;
   const fetchIntDataByName = async () => {
@@ -422,6 +425,8 @@ const OfficeScreen = ({ navigation }) => {
     <ScrollView
       contentContainerStyle={{ flexGrow: 1 }}
       keyboardShouldPersistTaps="handled"
+      ref={scrollViewRef}
+
     >
       <KeyboardAvoidingView
         style={{ flex: 1 }}
@@ -446,6 +451,8 @@ const OfficeScreen = ({ navigation }) => {
                     onPress={() => {
                       setSelectedCategory(category.label);
                       setSelectedSubCategory('');
+                      scrollViewRef.current.scrollToEnd({ animated: true });
+
                     }}
                   >
                     <Text>{category.label}</Text>
@@ -461,6 +468,8 @@ const OfficeScreen = ({ navigation }) => {
                     onPress={() => {
                       setSelectedCategory(category.label);
                       setSelectedSubCategory('');
+                      scrollViewRef.current.scrollToEnd({ animated: true });
+
                     }}
                   >
                     <Text>{category.label}</Text>
@@ -569,6 +578,7 @@ const Office2Screen = ({ navigation }) => {
   const [selectedSubCategory, setSelectedSubCategory] = useState('');
   const [description, setDescription] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const scrollViewRef = useRef();
 
   var place;
   const fetchIntDataByName = async () => {
@@ -635,6 +645,7 @@ const Office2Screen = ({ navigation }) => {
     <ScrollView
       contentContainerStyle={{ flexGrow: 1 }}
       keyboardShouldPersistTaps="handled"
+      ref={scrollViewRef}
     >
       <KeyboardAvoidingView
         style={{ flex: 1 }}
@@ -659,6 +670,7 @@ const Office2Screen = ({ navigation }) => {
                     onPress={() => {
                       setSelectedCategory(category.label);
                       setSelectedSubCategory('');
+                      scrollViewRef.current.scrollToEnd({ animated: true });
                     }}
                   >
                     <Text>{category.label}</Text>
@@ -674,6 +686,7 @@ const Office2Screen = ({ navigation }) => {
                     onPress={() => {
                       setSelectedCategory(category.label);
                       setSelectedSubCategory('');
+                      scrollViewRef.current.scrollToEnd({ animated: true });
                     }}
                   >
                     <Text>{category.label}</Text>
@@ -781,6 +794,7 @@ const MFUScreen = ({ navigation }) => {
   const [selectedSubCategory, setSelectedSubCategory] = useState('');
   const [description, setDescription] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const scrollViewRef = useRef();
 
   previousScreen = useRoute().name;
   var place;
@@ -848,7 +862,7 @@ const MFUScreen = ({ navigation }) => {
     <ScrollView
       contentContainerStyle={{ flexGrow: 1 }}
       keyboardShouldPersistTaps="handled"
-
+      ref={scrollViewRef}
     >
       <KeyboardAvoidingView
         style={{ flex: 1 }}
@@ -869,10 +883,11 @@ const MFUScreen = ({ navigation }) => {
                 {mfuCategories.slice(0, 2).map((category) => (
                   <TouchableOpacity
                     key={category.label}
-                    style={[styles.mfuCategoryButton, selectedCategory === category.label && styles.selectedButton]}
+                    style={[styles.categoryButton, selectedCategory === category.label && styles.selectedButton]}
                     onPress={() => {
                       setSelectedCategory(category.label);
                       setSelectedSubCategory('');
+                      scrollViewRef.current.scrollToEnd({ animated: true });
                     }}
                   >
                     <Text>{category.label}</Text>
@@ -888,6 +903,7 @@ const MFUScreen = ({ navigation }) => {
                     onPress={() => {
                       setSelectedCategory(category.label);
                       setSelectedSubCategory('');
+                      scrollViewRef.current.scrollToEnd({ animated: true });
                     }}
                   >
                     <Text>{category.label}</Text>
@@ -992,6 +1008,7 @@ const MFU2FixScreen = ({ navigation }) => {
   const [selectedSubCategory, setSelectedSubCategory] = useState('');
   const [description, setDescription] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const scrollViewRef = useRef();
 
   previousScreen = useRoute().name;
   var place;
@@ -1059,6 +1076,7 @@ const MFU2FixScreen = ({ navigation }) => {
     <ScrollView
       contentContainerStyle={{ flexGrow: 1 }}
       keyboardShouldPersistTaps="handled"
+      ref={scrollViewRef}
 
     >
       <KeyboardAvoidingView
@@ -1099,6 +1117,7 @@ const MFU2FixScreen = ({ navigation }) => {
                     onPress={() => {
                       setSelectedCategory(category.label);
                       setSelectedSubCategory('');
+                      scrollViewRef.current.scrollToEnd({ animated: true });
                     }}
                   >
                     <Text>{category.label}</Text>
@@ -1175,6 +1194,7 @@ const TableFixScreen = ({ navigation }) => {
   const [selectedSubCategory, setSelectedSubCategory] = useState('');
   const [description, setDescription] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const scrollViewRef = useRef();
 
   previousScreen = useRoute().name;
   var place;
@@ -1242,6 +1262,8 @@ const TableFixScreen = ({ navigation }) => {
     <ScrollView
       contentContainerStyle={{ flexGrow: 1 }}
       keyboardShouldPersistTaps="handled"
+      ref={scrollViewRef}
+
     >
       <KeyboardAvoidingView
         style={{ flex: 1 }}
@@ -1267,6 +1289,7 @@ const TableFixScreen = ({ navigation }) => {
                     onPress={() => {
                       setSelectedCategory(category.label);
                       setSelectedSubCategory('');
+                      scrollViewRef.current.scrollToEnd({ animated: true });
                     }}
                   >
                     <Text>{category.label}</Text>
@@ -1342,6 +1365,7 @@ const ComputerFixScreen = ({ navigation }) => {
   const [selectedSubCategory, setSelectedSubCategory] = useState('');
   const [description, setDescription] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const scrollViewRef = useRef();
 
   previousScreen = useRoute().name;
   var place;
@@ -1409,6 +1433,8 @@ const ComputerFixScreen = ({ navigation }) => {
     <ScrollView
       contentContainerStyle={{ flexGrow: 1 }}
       keyboardShouldPersistTaps="handled"
+      ref={scrollViewRef}
+
     >
       <KeyboardAvoidingView
         style={{ flex: 1 }}
@@ -1433,6 +1459,7 @@ const ComputerFixScreen = ({ navigation }) => {
                     onPress={() => {
                       setSelectedCategory(category.label);
                       setSelectedSubCategory('');
+                      scrollViewRef.current.scrollToEnd({ animated: true });
                     }}
                   >
                     <Text>{category.label}</Text>
@@ -1525,6 +1552,7 @@ const Computer2FixScreen = ({ navigation }) => {
   const [selectedSubCategory, setSelectedSubCategory] = useState('');
   const [description, setDescription] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const scrollViewRef = useRef();
 
   previousScreen = useRoute().name;
   var place;
@@ -1592,6 +1620,8 @@ const Computer2FixScreen = ({ navigation }) => {
     <ScrollView
       contentContainerStyle={{ flexGrow: 1 }}
       keyboardShouldPersistTaps="handled"
+      ref={scrollViewRef}
+
     >
       <KeyboardAvoidingView
         style={{ flex: 1 }}
@@ -1616,6 +1646,7 @@ const Computer2FixScreen = ({ navigation }) => {
                     onPress={() => {
                       setSelectedCategory(category.label);
                       setSelectedSubCategory('');
+                      scrollViewRef.current.scrollToEnd({ animated: true });
                     }}
                   >
                     <Text>{category.label}</Text>
@@ -1709,6 +1740,7 @@ const PhoneFixScreen = ({ navigation }) => {
   const [selectedSubCategory, setSelectedSubCategory] = useState('');
   const [description, setDescription] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const scrollViewRef = useRef();
 
   var place;
   const fetchIntDataByName = async () => {
@@ -1775,6 +1807,8 @@ const PhoneFixScreen = ({ navigation }) => {
     <ScrollView
       contentContainerStyle={{ flexGrow: 1 }}
       keyboardShouldPersistTaps="handled"
+      ref={scrollViewRef}
+
     >
       <KeyboardAvoidingView
         style={{ flex: 1 }}
@@ -1799,6 +1833,7 @@ const PhoneFixScreen = ({ navigation }) => {
                     onPress={() => {
                       setSelectedCategory(category.label);
                       setSelectedSubCategory('');
+                      scrollViewRef.current.scrollToEnd({ animated: true });
                     }}
                   >
                     <Text>{category.label}</Text>
@@ -1892,6 +1927,7 @@ const MonitorFixScreen = ({ navigation }) => {
   const [selectedSubCategory, setSelectedSubCategory] = useState('');
   const [description, setDescription] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const scrollViewRef = useRef();
 
   var place;
   const fetchIntDataByName = async () => {
@@ -1958,6 +1994,8 @@ const MonitorFixScreen = ({ navigation }) => {
     <ScrollView
       contentContainerStyle={{ flexGrow: 1 }}
       keyboardShouldPersistTaps="handled"
+      ref={scrollViewRef}
+
     >
       <KeyboardAvoidingView
         style={{ flex: 1 }}
@@ -1982,6 +2020,7 @@ const MonitorFixScreen = ({ navigation }) => {
                     onPress={() => {
                       setSelectedCategory(category.label);
                       setSelectedSubCategory('');
+                      scrollViewRef.current.scrollToEnd({ animated: true });
                     }}
                   >
                     <Text>{category.label}</Text>
@@ -2075,6 +2114,7 @@ const IBPFixScreen = ({ navigation }) => {
   const [selectedSubCategory, setSelectedSubCategory] = useState('');
   const [description, setDescription] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const scrollViewRef = useRef();
 
   var place;
   const fetchIntDataByName = async () => {
@@ -2141,6 +2181,8 @@ const IBPFixScreen = ({ navigation }) => {
     <ScrollView
       contentContainerStyle={{ flexGrow: 1 }}
       keyboardShouldPersistTaps="handled"
+      ref={scrollViewRef}
+
     >
       <KeyboardAvoidingView
         style={{ flex: 1 }}
@@ -2165,6 +2207,7 @@ const IBPFixScreen = ({ navigation }) => {
                     onPress={() => {
                       setSelectedCategory(category.label);
                       setSelectedSubCategory('');
+                      scrollViewRef.current.scrollToEnd({ animated: true });
                     }}
                   >
                     <Text>{category.label}</Text>
@@ -2258,6 +2301,7 @@ const IBP2FixScreen = ({ navigation }) => {
   const [selectedSubCategory, setSelectedSubCategory] = useState('');
   const [description, setDescription] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const scrollViewRef = useRef();
 
   var place;
   const fetchIntDataByName = async () => {
@@ -2324,6 +2368,8 @@ const IBP2FixScreen = ({ navigation }) => {
     <ScrollView
       contentContainerStyle={{ flexGrow: 1 }}
       keyboardShouldPersistTaps="handled"
+      ref={scrollViewRef}
+
     >
       <KeyboardAvoidingView
         style={{ flex: 1 }}
@@ -2348,6 +2394,7 @@ const IBP2FixScreen = ({ navigation }) => {
                     onPress={() => {
                       setSelectedCategory(category.label);
                       setSelectedSubCategory('');
+                      scrollViewRef.current.scrollToEnd({ animated: true });
                     }}
                   >
                     <Text>{category.label}</Text>
@@ -2441,6 +2488,7 @@ const ChairFixScreen = ({ navigation }) => {
   const [selectedSubCategory, setSelectedSubCategory] = useState('');
   const [description, setDescription] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const scrollViewRef = useRef();
 
   var place;
   const fetchIntDataByName = async () => {
@@ -2507,6 +2555,8 @@ const ChairFixScreen = ({ navigation }) => {
     <ScrollView
       contentContainerStyle={{ flexGrow: 1 }}
       keyboardShouldPersistTaps="handled"
+      ref={scrollViewRef}
+
     >
       <KeyboardAvoidingView
         style={{ flex: 1 }}
@@ -2530,6 +2580,7 @@ const ChairFixScreen = ({ navigation }) => {
                     onPress={() => {
                       setSelectedCategory(category.label);
                       setSelectedSubCategory('');
+                      scrollViewRef.current.scrollToEnd({ animated: true });
                     }}
                   >
                     <Text>{category.label}</Text>
@@ -2622,6 +2673,7 @@ const Chair2FixScreen = ({ navigation }) => {
   const [selectedSubCategory, setSelectedSubCategory] = useState('');
   const [description, setDescription] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const scrollViewRef = useRef();
 
   var place;
   const fetchIntDataByName = async () => {
@@ -2688,6 +2740,8 @@ const Chair2FixScreen = ({ navigation }) => {
     <ScrollView
       contentContainerStyle={{ flexGrow: 1 }}
       keyboardShouldPersistTaps="handled"
+      ref={scrollViewRef}
+
     >
       <KeyboardAvoidingView
         style={{ flex: 1 }}
@@ -2711,6 +2765,7 @@ const Chair2FixScreen = ({ navigation }) => {
                     onPress={() => {
                       setSelectedCategory(category.label);
                       setSelectedSubCategory('');
+                      scrollViewRef.current.scrollToEnd({ animated: true });
                     }}
                   >
                     <Text>{category.label}</Text>
@@ -2803,6 +2858,7 @@ const RouterFixScreen = ({ navigation }) => {
   const [selectedSubCategory, setSelectedSubCategory] = useState('');
   const [description, setDescription] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const scrollViewRef = useRef();
 
   var place;
   const fetchIntDataByName = async () => {
@@ -2869,6 +2925,8 @@ const RouterFixScreen = ({ navigation }) => {
     <ScrollView
       contentContainerStyle={{ flexGrow: 1 }}
       keyboardShouldPersistTaps="handled"
+      ref={scrollViewRef}
+
     >
       <KeyboardAvoidingView
         style={{ flex: 1 }}
@@ -2892,6 +2950,7 @@ const RouterFixScreen = ({ navigation }) => {
                     onPress={() => {
                       setSelectedCategory(category.label);
                       setSelectedSubCategory('');
+                      scrollViewRef.current.scrollToEnd({ animated: true });
                     }}
                   >
                     <Text>{category.label}</Text>
@@ -2983,7 +3042,7 @@ const CoolerFixScreen = ({ navigation }) => {
   const [selectedSubCategory, setSelectedSubCategory] = useState('');
   const [description, setDescription] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-
+  const scrollViewRef = useRef();
   var place;
   const fetchIntDataByName = async () => {
     const name = 'Fg3WpHuSHmt9vHJCrDVQVfNG3X2a87DQCTaTrdXn';
@@ -3049,6 +3108,8 @@ const CoolerFixScreen = ({ navigation }) => {
     <ScrollView
       contentContainerStyle={{ flexGrow: 1 }}
       keyboardShouldPersistTaps="handled"
+      ref={scrollViewRef}
+
     >
       <KeyboardAvoidingView
         style={{ flex: 1 }}
@@ -3072,6 +3133,7 @@ const CoolerFixScreen = ({ navigation }) => {
                     onPress={() => {
                       setSelectedCategory(category.label);
                       setSelectedSubCategory('');
+                      scrollViewRef.current.scrollToEnd({ animated: true });
                     }}
                   >
                     <Text>{category.label}</Text>
@@ -3278,7 +3340,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   camera: {
-    flex: 1,
+    height: '90%',
+    width: '100%'
   },
   scanText: {
     alignSelf: 'center',
@@ -3298,7 +3361,7 @@ const styles = StyleSheet.create({
     fontSize: 24,
     textAlign: 'center',
     textAlignVertical: "center",
-    marginBottom: 10
+    marginBottom: 70
   },
   overlayCategory: {
     color: '#20242a',
@@ -3450,7 +3513,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     paddingHorizontal: 20,
-    marginTop: 70,
+    marginTop: 40,
     width: '100%',
   },
   modalContainer: {
