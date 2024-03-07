@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { View, Dimensions, Text, TouchableOpacity, TouchableWithoutFeedback, TextInput, Alert, Modal, StyleSheet, ScrollView, KeyboardAvoidingView, ActivityIndicator } from 'react-native';
+import { View, Dimensions, Text, TouchableOpacity, Image, TextInput, Alert, Modal, StyleSheet, ScrollView, KeyboardAvoidingView, ActivityIndicator } from 'react-native';
 import { NavigationContainer, useRoute, useFocusEffect } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { AntDesign, MaterialIcons } from '@expo/vector-icons';
@@ -8,7 +8,6 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import BarcodeMask from 'react-native-barcode-mask';
 import { Camera, CameraType } from 'expo-camera';
 import { Ionicons } from '@expo/vector-icons';
-
 
 const Stack = createStackNavigator();
 const clearAsyncStorage = async () => {
@@ -149,11 +148,6 @@ const FioList = ({ onSelectFio }) => {
 
 var previousScreen;
 var fio;
-const finderWidth = 280;
-const finderHeight = 280;
-const width = Dimensions.get('window').width;
-const height = Dimensions.get('window').height;
-
 const HomeScreen = ({ navigation }) => {
   const [hasPermission, setHasPermission] = useState(null);
   const [alertShown, setAlertShown] = useState(false);
@@ -166,7 +160,6 @@ const HomeScreen = ({ navigation }) => {
   };
 
   useEffect(() => {
-
     const unsubscribe = navigation.addListener('blur', () => {
       setHasPermission(null);
     });
@@ -186,48 +179,74 @@ const HomeScreen = ({ navigation }) => {
     }, [])
   );
 
-  const handleBarCodeScanned = ({ data }) => {
-    if (data === 'mrL7vRrdzUSQ0eYGxM2PvyhlzIy1ZzaIHT8vG1PI') {
-      navigation.navigate('OfficeScreen');
-    } else if (data === 'FiZX73nN6P5tjXWSSTqVyr8Yn5hDAIk0tl17hLSn') {
-      navigation.navigate('MFUScreen');
-    } else if (data === 'z1XUGy6aTNHyvYihei9nu63LgGlMQtHe1XnRzJ8d') {
-      navigation.navigate('TableFixScreen');
-    } else if (data === 'om95lS8uAQ2Hkfezn9qFA4fc2sLGWDGZ1KBlA7dK') {
-      navigation.navigate('ComputerFixScreen');
-    } else if (data === 'fVnwnEaemLVvaCfuh3hB9OwmOz0f2Hz2KVQDsLl4') {
-      navigation.navigate('PhoneFixScreen');
-    } else if (data === 'BEYWc02B1w3vONMoViurR06cmQPh4oueJNyO77pZ') {
-      navigation.navigate('MonitorFixScreen');
-    } else if (data === 'p6ZgIRLZIgVDCSsB30wxw6Og0JdqMfsXBm273bwe') {
-      navigation.navigate('ChairFixScreen');
-    } else if (data === '9vKqvvnqtBK5C6krs6aa8PJ7O4LcsH8hWCB6OV6y') {
-      navigation.navigate('RouterFixScreen');
-    } else if (data === 'Fg3WpHuSHmt9vHJCrDVQVfNG3X2a87DQCTaTrdXn') {
-      navigation.navigate('CoolerFixScreen');
-    } else if (data === '0R4BU1Cu5CoVAdKQwytppRGEpWzZ1DKZfXTSO5yi') {
-      navigation.navigate('IBPFixScreen');
-    } else if (data === '1XichVggzUfhecv6xyGqAfDR7f6RujLQb3cVPeN1') {
-      navigation.navigate('MFU2FixScreen');
-    } else if (data === 'VUUFiYQP6DEEHcABTKG5ySWCohMF7V368JvwDFo6') {
-      navigation.navigate('Computer2FixScreen');
-    } else if (data === 'inbFJyiyvHWnDTUlDszbrIFbCMqYy72vvesYhiYL') {
-      navigation.navigate('Office2Screen');
-    } else if (data === 's5Gb9aAM91I8mar7IZSR8cJk2puVusARYdz4WSqC') {
-      navigation.navigate('Chair2FixScreen');
-    } else if (data === 'hhfezhtQFmv7oemKWtpRSu4ka5f4hTbirefUaseF') {
-      navigation.navigate('IBP2FixScreen');
-    } else {
-      if (!alertShown) {
-        Alert.alert('QR код не существует', '', [
-          {
-            text: 'OK',
-            onPress: () => setAlertShown(false),
-          },
-        ]);
-        setAlertShown(true);
-      }
+  const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 
+  const marginX = 10;
+  const marginY = 330;
+
+  const perimeterBounds = {
+    left: marginX,
+    top: marginY,
+    right: screenWidth - marginX,
+    bottom: screenHeight - marginY - 50,
+  };
+
+  const isPointInsidePerimeter = (point) => {
+    return (
+      point.x >= perimeterBounds.left &&
+      point.x <= perimeterBounds.right &&
+      point.y >= perimeterBounds.top &&
+      point.y <= perimeterBounds.bottom
+    );
+  };
+  const handleBarCodeScanned = ({ cornerPoints, data }) => {
+    const pointsInsidePerimeter = cornerPoints.filter(isPointInsidePerimeter);
+
+    if (pointsInsidePerimeter.length > 0) {
+      if (data === 'mrL7vRrdzUSQ0eYGxM2PvyhlzIy1ZzaIHT8vG1PI') {
+        navigation.navigate('OfficeScreen');
+      } else if (data === 'FiZX73nN6P5tjXWSSTqVyr8Yn5hDAIk0tl17hLSn') {
+        navigation.navigate('MFUScreen');
+      } else if (data === 'z1XUGy6aTNHyvYihei9nu63LgGlMQtHe1XnRzJ8d') {
+        navigation.navigate('TableFixScreen');
+      } else if (data === 'om95lS8uAQ2Hkfezn9qFA4fc2sLGWDGZ1KBlA7dK') {
+        navigation.navigate('ComputerFixScreen');
+      } else if (data === 'fVnwnEaemLVvaCfuh3hB9OwmOz0f2Hz2KVQDsLl4') {
+        navigation.navigate('PhoneFixScreen');
+      } else if (data === 'BEYWc02B1w3vONMoViurR06cmQPh4oueJNyO77pZ') {
+        navigation.navigate('MonitorFixScreen');
+      } else if (data === 'p6ZgIRLZIgVDCSsB30wxw6Og0JdqMfsXBm273bwe') {
+        navigation.navigate('ChairFixScreen');
+      } else if (data === '9vKqvvnqtBK5C6krs6aa8PJ7O4LcsH8hWCB6OV6y') {
+        navigation.navigate('RouterFixScreen');
+      } else if (data === 'Fg3WpHuSHmt9vHJCrDVQVfNG3X2a87DQCTaTrdXn') {
+        navigation.navigate('CoolerFixScreen');
+      } else if (data === '0R4BU1Cu5CoVAdKQwytppRGEpWzZ1DKZfXTSO5yi') {
+        navigation.navigate('IBPFixScreen');
+      } else if (data === '1XichVggzUfhecv6xyGqAfDR7f6RujLQb3cVPeN1') {
+        navigation.navigate('MFU2FixScreen');
+      } else if (data === 'VUUFiYQP6DEEHcABTKG5ySWCohMF7V368JvwDFo6') {
+        navigation.navigate('Computer2FixScreen');
+      } else if (data === 'inbFJyiyvHWnDTUlDszbrIFbCMqYy72vvesYhiYL') {
+        navigation.navigate('Office2Screen');
+      } else if (data === 's5Gb9aAM91I8mar7IZSR8cJk2puVusARYdz4WSqC') {
+        navigation.navigate('Chair2FixScreen');
+      } else if (data === 'hhfezhtQFmv7oemKWtpRSu4ka5f4hTbirefUaseF') {
+        navigation.navigate('IBP2FixScreen');
+      } else {
+        if (!alertShown) {
+          Alert.alert('QR код не существует', '', [
+            {
+              text: 'OK',
+              onPress: () => setAlertShown(false),
+            },
+          ]);
+          setAlertShown(true);
+        }
+
+      }
+    } else {
+      console.log("QR-код за пределами заданного периметра");
     }
   };
 
@@ -272,7 +291,6 @@ const HomeScreen = ({ navigation }) => {
             handleBarCodeScanned(data);
           }
         }}
-
       >
         <TouchableOpacity style={styles.flashButton} onPress={toggleFlash}>
           <Ionicons name={flashMode === Camera.Constants.FlashMode.off ? 'flash' : 'flash-off'} size={24} color="white" />
@@ -284,7 +302,8 @@ const HomeScreen = ({ navigation }) => {
             flexDirection: 'row',
           }}>
         </View>
-        <BarcodeMask edgeColor="white" showAnimatedLine={false} width={330} height={330} />
+
+        <BarcodeMask lineAnimationDuration={1500} edgeBorderWidth={10} edgeHeight={40} edgeWidth={40} edgeRadius={20} animatedLineColor='lime' width={330} height={330} />
       </Camera>
 
       {/* <BarCodeScanner
@@ -358,6 +377,7 @@ const OfficeScreen = ({ navigation }) => {
   const [selectedSubCategory, setSelectedSubCategory] = useState('');
   const [description, setDescription] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+
   const scrollViewRef = useRef();
 
   var place;
@@ -434,12 +454,17 @@ const OfficeScreen = ({ navigation }) => {
         <View style={styles.container}>
           <View style={styles.overlay}>
             {/* <TopHeaderButtons navigation={navigation} /> */}
+            <Image
+              source={require('./pics/office1.jpg')}
+              style={styles.image}
+            />
             <View style={styles.fioTextContainer}>
               {/* <Text style={styles.fioText}>{fio}</Text> */}
+
             </View>
             <View>
               <Text style={styles.overlayText}>Вы отсканировали QR-код:{'\n'}
-                <View><Text style={styles.overlayCategory}>офиса</Text></View></Text></View>
+                <View><Text style={styles.overlayCategory}>Офиса</Text></View></Text></View>
             <View style={styles.categoryContainer}>
               <Text style={styles.categoryText}>Что вас интересует</Text>
 
@@ -509,11 +534,12 @@ const OfficeScreen = ({ navigation }) => {
                 </View>
               </View>
             )}
-
             <TextInput
               style={styles.input}
               placeholder={selectedCategory ? 'Дополните свой запрос здесь' : 'Напишите свой запрос здесь'}
               multiline={true}
+              numberOfLines={5}
+              editable={true}
               placeholderTextColor="#979aaa"
               value={description}
               onChangeText={(text) => setDescription(text)}
@@ -653,12 +679,16 @@ const Office2Screen = ({ navigation }) => {
         <View style={styles.container}>
           <View style={styles.overlay}>
             {/* <TopHeaderButtons navigation={navigation} /> */}
+            <Image
+              source={require('./pics/office2.jpg')}
+              style={styles.image}
+            />
             <View style={styles.fioTextContainer}>
               {/* <Text style={styles.fioText}>{fio}</Text> */}
             </View>
             <View>
               <Text style={styles.overlayText}>Вы отсканировали QR-код:{'\n'}
-                <View><Text style={styles.overlayCategory}>офиса</Text></View></Text></View>
+                <View><Text style={styles.overlayCategory}>Офиса</Text></View></Text></View>
             <View style={styles.categoryContainer}>
               <Text style={styles.categoryText}>Что вас интересует</Text>
 
@@ -871,6 +901,10 @@ const MFUScreen = ({ navigation }) => {
         <View style={styles.container}>
           <View style={styles.overlay}>
             {/* <TopHeaderButtons navigation={navigation} /> */}
+            <Image
+              source={require('./pics/MFU1.jpg')}
+              style={styles.image}
+            />
             <View style={styles.fioTextContainer}>
               {/* <Text style={styles.fioText}>{fio}</Text> */}
             </View>
@@ -1086,6 +1120,10 @@ const MFU2FixScreen = ({ navigation }) => {
         <View style={styles.container}>
           <View style={styles.overlay}>
             {/* <TopHeaderButtons navigation={navigation} /> */}
+            <Image
+              source={require('./pics/MFU2.jpg')}
+              style={styles.image}
+            />
             <View style={styles.fioTextContainer}>
               {/* <Text style={styles.fioText}>{fio}</Text> */}
             </View>
@@ -1272,12 +1310,16 @@ const TableFixScreen = ({ navigation }) => {
         <View style={styles.container}>
           <View style={styles.overlay}>
             {/* <TopHeaderButtons navigation={navigation} /> */}
+            <Image
+              source={require('./pics/table.jpg')}
+              style={styles.image}
+            />
             <View style={styles.fioTextContainer}>
               {/* <Text style={styles.fioText}>{fio}</Text> */}
             </View>
             <View>
               <Text style={styles.overlayText}>Вы отсканировали QR-код:{'\n'}
-                <View><Text style={styles.overlayCategory}>стола</Text></View></Text></View>
+                <View><Text style={styles.overlayCategory}>Стола</Text></View></Text></View>
             <View style={styles.categoryContainer}>
               <Text style={styles.categoryText}>Что вас интересует</Text>
 
@@ -1442,12 +1484,16 @@ const ComputerFixScreen = ({ navigation }) => {
         <View style={styles.container}>
           <View style={styles.overlay}>
             {/* <TopHeaderButtons navigation={navigation} /> */}
+            <Image
+              source={require('./pics/pc1.jpg')}
+              style={styles.image}
+            />
             <View style={styles.fioTextContainer}>
               {/* <Text style={styles.fioText}>{fio}</Text> */}
             </View>
             <View>
               <Text style={styles.overlayText}>Вы отсканировали QR-код:{'\n'}
-                <View><Text style={styles.overlayCategory}>компьютера</Text></View></Text></View>
+                <View><Text style={styles.overlayCategory}>Компьютера</Text></View></Text></View>
             <View style={styles.categoryContainer}>
               <Text style={styles.categoryText}>Что вас интересует</Text>
 
@@ -1629,12 +1675,16 @@ const Computer2FixScreen = ({ navigation }) => {
         <View style={styles.container}>
           <View style={styles.overlay}>
             {/* <TopHeaderButtons navigation={navigation} /> */}
+            <Image
+              source={require('./pics/pc2.jpg')}
+              style={styles.image}
+            />
             <View style={styles.fioTextContainer}>
               {/* <Text style={styles.fioText}>{fio}</Text> */}
             </View>
             <View>
               <Text style={styles.overlayText}>Вы отсканировали QR-код:{'\n'}
-                <View><Text style={styles.overlayCategory}>компьютера</Text></View></Text></View>
+                <View><Text style={styles.overlayCategory}>Компьютера</Text></View></Text></View>
             <View style={styles.categoryContainer}>
               <Text style={styles.categoryText}>Что вас интересует</Text>
 
@@ -1816,12 +1866,16 @@ const PhoneFixScreen = ({ navigation }) => {
         <View style={styles.container}>
           <View style={styles.overlay}>
             {/* <TopHeaderButtons navigation={navigation} /> */}
+            <Image
+              source={require('./pics/phone.jpg')}
+              style={styles.image}
+            />
             <View style={styles.fioTextContainer}>
               {/* <Text style={styles.fioText}>{fio}</Text> */}
             </View>
             <View>
               <Text style={styles.overlayText}>Вы отсканировали QR-код:{'\n'}
-                <View><Text style={styles.overlayCategory}>телефона</Text></View></Text></View>
+                <View><Text style={styles.overlayCategory}>Телефона</Text></View></Text></View>
             <View style={styles.categoryContainer}>
               <Text style={styles.categoryText}>Что вас интересует</Text>
 
@@ -2003,12 +2057,16 @@ const MonitorFixScreen = ({ navigation }) => {
         <View style={styles.container}>
           <View style={styles.overlay}>
             {/* <TopHeaderButtons navigation={navigation} /> */}
+            <Image
+              source={require('./pics/monitor.jpg')}
+              style={styles.image}
+            />
             <View style={styles.fioTextContainer}>
               {/* <Text style={styles.fioText}>{fio}</Text> */}
             </View>
             <View>
               <Text style={styles.overlayText}>Вы отсканировали QR-код:{'\n'}
-                <View><Text style={styles.overlayCategory}>монитора</Text></View></Text></View>
+                <View><Text style={styles.overlayCategory}>Монитора</Text></View></Text></View>
             <View style={styles.categoryContainer}>
               <Text style={styles.categoryText}>Что вас интересует</Text>
 
@@ -2190,6 +2248,10 @@ const IBPFixScreen = ({ navigation }) => {
         <View style={styles.container}>
           <View style={styles.overlay}>
             {/* <TopHeaderButtons navigation={navigation} /> */}
+            <Image
+              source={require('./pics/ibp1.jpg')}
+              style={styles.image}
+            />
             <View style={styles.fioTextContainer}>
               {/* <Text style={styles.fioText}>{fio}</Text> */}
             </View>
@@ -2377,6 +2439,10 @@ const IBP2FixScreen = ({ navigation }) => {
         <View style={styles.container}>
           <View style={styles.overlay}>
             {/* <TopHeaderButtons navigation={navigation} /> */}
+            <Image
+              source={require('./pics/ibp2.jpg')}
+              style={styles.image}
+            />
             <View style={styles.fioTextContainer}>
               {/* <Text style={styles.fioText}>{fio}</Text> */}
             </View>
@@ -2564,12 +2630,16 @@ const ChairFixScreen = ({ navigation }) => {
         <View style={styles.container}>
           <View style={styles.overlay}>
             {/* <TopHeaderButtons navigation={navigation} /> */}
+            <Image
+              source={require('./pics/chair.jpg')}
+              style={styles.image}
+            />
             <View style={styles.fioTextContainer}>
               {/* <Text style={styles.fioText}>{fio}</Text> */}
             </View>
             <View>
               <Text style={styles.overlayText}>Вы отсканировали QR-код:{'\n'}
-                <View><Text style={styles.overlayCategory}>стула</Text></View></Text></View>
+                <View><Text style={styles.overlayCategory}>Стула</Text></View></Text></View>
             <View style={styles.categoryContainer}>
               <Text style={styles.categoryText}>Что вас интересует</Text>
               <View style={styles.categoryButtonContainer}>
@@ -2749,12 +2819,16 @@ const Chair2FixScreen = ({ navigation }) => {
         <View style={styles.container}>
           <View style={styles.overlay}>
             {/* <TopHeaderButtons navigation={navigation} /> */}
+            <Image
+              source={require('./pics/chair.jpg')}
+              style={styles.image}
+            />
             <View style={styles.fioTextContainer}>
               {/* <Text style={styles.fioText}>{fio}</Text> */}
             </View>
             <View>
               <Text style={styles.overlayText}>Вы отсканировали QR-код:{'\n'}
-                <View><Text style={styles.overlayCategory}>стула</Text></View></Text></View>
+                <View><Text style={styles.overlayCategory}>Стула</Text></View></Text></View>
             <View style={styles.categoryContainer}>
               <Text style={styles.categoryText}>Что вас интересует</Text>
               <View style={styles.categoryButtonContainer}>
@@ -2934,12 +3008,16 @@ const RouterFixScreen = ({ navigation }) => {
         <View style={styles.container}>
           <View style={styles.overlay}>
             {/* <TopHeaderButtons navigation={navigation} /> */}
+            <Image
+              source={require('./pics/router.jpg')}
+              style={styles.image}
+            />
             <View style={styles.fioTextContainer}>
               {/* <Text style={styles.fioText}>{fio}</Text> */}
             </View>
             <View>
               <Text style={styles.overlayText}>Вы отсканировали QR-код:{'\n'}
-                <View><Text style={styles.overlayCategory}>роутера</Text></View></Text></View>
+                <View><Text style={styles.overlayCategory}>Роутера</Text></View></Text></View>
             <View style={styles.categoryContainer}>
               <Text style={styles.categoryText}>Что вас интересует</Text>
               <View style={styles.categoryButtonContainer}>
@@ -3117,12 +3195,16 @@ const CoolerFixScreen = ({ navigation }) => {
         <View style={styles.container}>
           <View style={styles.overlay}>
             {/* <TopHeaderButtons navigation={navigation} /> */}
+            <Image
+              source={require('./pics/cooler.jpg')}
+              style={styles.image}
+            />
             <View style={styles.fioTextContainer}>
               {/* <Text style={styles.fioText}>{fio}</Text> */}
             </View>
             <View>
               <Text style={styles.overlayText}>Вы отсканировали QR-код:{'\n'}
-                <View><Text style={styles.overlayCategory}>куллера</Text></View></Text></View>
+                <View><Text style={styles.overlayCategory}>Куллера</Text></View></Text></View>
             <View style={styles.categoryContainer}>
               <Text style={styles.categoryText}>Что вас интересует</Text>
               <View style={styles.categoryButtonContainer}>
@@ -3361,7 +3443,7 @@ const styles = StyleSheet.create({
     fontSize: 24,
     textAlign: 'center',
     textAlignVertical: "center",
-    marginBottom: 70
+    marginBottom: 40
   },
   overlayCategory: {
     color: '#20242a',
@@ -3457,13 +3539,13 @@ const styles = StyleSheet.create({
     backgroundColor: '#ffa200',
   },
   input: {
+    textAlignVertical: 'top',
     backgroundColor: '#ffffff',
     color: 'black',
-    padding: 10,
+    padding: 5,
     borderRadius: 8,
     marginBottom: 10,
     height: 200,
-    textAlignVertical: 'top',
   },
   goBackButton: {
     position: 'absolute',
@@ -3579,6 +3661,14 @@ const styles = StyleSheet.create({
     top: 90,
     right: 20,
   },
+  image: {
+    width: 300,
+    height: 150,
+    position: 'absolute',
+    alignSelf: 'center',
+    resizeMode: 'contain',
+    top: 20
+  }
 });
 export { HomeScreen, MFUScreen, OfficeScreen, fio };
 

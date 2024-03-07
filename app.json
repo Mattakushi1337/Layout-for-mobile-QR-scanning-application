@@ -2,7 +2,7 @@
   "expo": {
     "name": "QR CDS",
     "slug": "qr",
-    "version": "1.1.7",
+    "version": "2.0.0",
     "orientation": "portrait",
     "icon": "./assets/QR_CDS.png",
     "userInterfaceStyle": "light",
@@ -18,7 +18,9 @@
       "supportsTablet": true
     },
     "android": {
-      "permissions": ["CAMERA"],
+      "permissions": [
+        "CAMERA"
+      ],
       "adaptiveIcon": {
         "foregroundImage": "./assets/QR_CDS.png",
         "backgroundColor": "#ffffff"
@@ -30,7 +32,7 @@
     },
     "extra": {
       "eas": {
-        "projectId": "71a68e7b-da15-435b-b257-1e73afffd742"
+        "projectId": "805abea8-e948-4167-a7eb-389b08e1038d"
       }
     }
   }
