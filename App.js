@@ -83,7 +83,7 @@ const FioList = ({ onSelectFio }) => {
     <View>
       <TextInput
         style={styles.fioInput}
-        placeholder="Введите айди"
+        placeholder="Введите ID"
         placeholderTextColor="white"
         value={inputValue}
         onChangeText={handleInputChange}
@@ -318,14 +318,14 @@ const HomeScreen = ({ navigation }) => {
       {/* {!isModalVisible && fio ? (
         <Text style={styles.fioText1}>{fio}</Text>
       ) : null} */}
-      {/* <TouchableOpacity
+      <TouchableOpacity
         onPress={() => {
           clearAsyncStorage();
           openModal();
         }}
       >
         <Text style={{ color: '#ffffff' }}>Назад </Text>
-      </TouchableOpacity> */}
+      </TouchableOpacity>
       <Modal
         visible={isModalVisible}
         animationType="slide"
@@ -3602,16 +3602,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-  },
-  fioItem: {
-    marginTop: 10,
-    padding: 10,
-    borderWidth: 1,
-    borderColor: '#ccc',
-    backgroundColor: 'rgba(0, 0, 0, 1)',
-    alignSelf: 'center',
-    width: 125,
+    backgroundColor: '#20242a',
   },
   fioTextContainer: {
     marginBottom: 160,
@@ -3621,11 +3612,22 @@ const styles = StyleSheet.create({
     color: 'white',
     textAlign: 'center',
   },
+  fioItem: {
+    marginTop: 10,
+    padding: 10,
+    borderWidth: 1,
+    top: 120,
+    borderRadius: 8,
+    backgroundColor: '#009b4d',
+    alignSelf: 'center',
+    width: 125,
+  },
   fioInput: {
     height: 40,
     width: 250,
     borderColor: 'gray',
     borderWidth: 1,
+    top: 120,
     marginBottom: 10,
     paddingHorizontal: 10,
     fontSize: 16,
