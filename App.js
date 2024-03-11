@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { View, Dimensions, Text, TouchableOpacity, Image, TextInput, Alert, Modal, StyleSheet, ScrollView, KeyboardAvoidingView, ActivityIndicator } from 'react-native';
+import { View, Dimensions, Text, TouchableOpacity, BackHandler, Image, TextInput, Alert, Modal, StyleSheet, ScrollView, KeyboardAvoidingView, ActivityIndicator } from 'react-native';
 import { NavigationContainer, useRoute, useFocusEffect } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { AntDesign, MaterialIcons } from '@expo/vector-icons';
@@ -18,6 +18,7 @@ const clearAsyncStorage = async () => {
     console.error('Ошибка при очистке AsyncStorage:', error);
   }
 };
+
 const FioList = ({ onSelectFio }) => {
   const [inputValue, setInputValue] = useState('');
 
@@ -71,7 +72,6 @@ const FioList = ({ onSelectFio }) => {
         });
 
         await AsyncStorage.setItem('savedFio', userData.fio);
-
         onSelectFio(userData.fio);
       }
     } catch (error) {
@@ -95,57 +95,6 @@ const FioList = ({ onSelectFio }) => {
   );
 };
 
-// const TopHeaderButtons = ({ navigation }) => {
-//   const tabs = [
-//     { screen: 'Home', label: 'Клиент' },
-//     { screen: 'AdminScreen', label: 'Инвентаризация' },
-//   ];
-
-//   return (
-//     <View style={styles.topButtonsContainer}>
-//       {tabs.map((tab, index) => (
-//         <TouchableOpacity
-//           key={index}
-//           style={[styles.topButton, index !== 0 && styles.activeButton]}
-//           onPress={() => {
-//             previousScreen = undefined;
-//             navigation.navigate(tab.screen);
-//           }}
-//         >
-//           <Text style={[styles.buttonText, index !== 0 && styles.activeButtonText]}>
-//             {tab.label}
-//           </Text>
-//         </TouchableOpacity>
-//       ))}
-//     </View>
-//   );
-// };
-
-// const TopHeaderButtonsQR = ({ navigation }) => {
-//   const tabs = [
-//     { screen: 'Home', label: 'Клиент' },
-//     { screen: 'AdminScreen', label: 'Инвентаризация' },
-//   ];
-//   return (
-//     <View style={styles.topButtonsContainerQR}>
-//       {tabs.map((tab, index) => (
-//         <TouchableOpacity
-//           key={index}
-//           style={[styles.topButton, index !== 0 && styles.activeButton]}
-//           onPress={() => {
-//             previousScreen = undefined;
-//             navigation.navigate(tab.screen);
-//           }}
-//         >
-//           <Text style={[styles.buttonText, index !== 0 && styles.activeButtonText]}>
-//             {tab.label}
-//           </Text>
-//         </TouchableOpacity>
-//       ))}
-//     </View>
-//   );
-// };
-
 var previousScreen;
 var fio;
 const HomeScreen = ({ navigation }) => {
@@ -153,6 +102,7 @@ const HomeScreen = ({ navigation }) => {
   const [alertShown, setAlertShown] = useState(false);
   const [isModalVisible, setIsModalVisible] = useState(true);
   const [flashMode, setFlashMode] = useState(Camera.Constants.FlashMode.off);
+  const [barcodeKey, setBarcodeKey] = useState(0);
 
   const requestCameraPermission = async () => {
     const { status } = await Camera.requestCameraPermissionsAsync();
@@ -182,7 +132,7 @@ const HomeScreen = ({ navigation }) => {
   const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 
   const marginX = 10;
-  const marginY = 330;
+  const marginY = 270;
 
   const perimeterBounds = {
     left: marginX,
@@ -256,6 +206,7 @@ const HomeScreen = ({ navigation }) => {
 
   const closeModal = () => {
     setIsModalVisible(false);
+    setBarcodeKey((prevKey) => prevKey + 1);
   };
 
   const handleSelectFio = (selectedFio) => {
@@ -278,9 +229,18 @@ const HomeScreen = ({ navigation }) => {
   if (hasPermission === false) {
     return <Text>Доступ к камере запрещен</Text>;
   }
-
   return (
     <View style={styles.container}>
+      <Modal
+        visible={isModalVisible}
+        animationType="slide"
+        transparent={true}
+        onRequestClose={closeModal}
+      >
+        <View style={styles.modalContainer}>
+          <FioList onSelectFio={handleSelectFio} />
+        </View>
+      </Modal>
       <Camera
         ratio='16:9'
         type={CameraType.back}
@@ -302,22 +262,10 @@ const HomeScreen = ({ navigation }) => {
             flexDirection: 'row',
           }}>
         </View>
-
-        <BarcodeMask lineAnimationDuration={1500} edgeBorderWidth={10} edgeHeight={40} edgeWidth={40} edgeRadius={20} animatedLineColor='lime' width={330} height={330} />
+        <BarcodeMask key={barcodeKey} lineAnimationDuration={1500} showAnimatedLine={true} edgeBorderWidth={10} edgeHeight={40} edgeWidth={40} edgeRadius={20} animatedLineColor='lime' width={330} height={330} />
       </Camera>
 
-      {/* <BarCodeScanner
-        onBarCodeScanned={(data) => {
-          if (!isModalVisible) {
-            handleBarCodeScanned(data);
-          }
-        }} style={StyleSheet.absoluteFillObject}
-      /> */}
-      {/* <TopHeaderButtonsQR navigation={navigation} /> */}
-
-      {/* {!isModalVisible && fio ? (
-        <Text style={styles.fioText1}>{fio}</Text>
-      ) : null} */}
+{/* 
       <TouchableOpacity
         onPress={() => {
           clearAsyncStorage();
@@ -325,17 +273,8 @@ const HomeScreen = ({ navigation }) => {
         }}
       >
         <Text style={{ color: '#ffffff' }}>Назад </Text>
-      </TouchableOpacity>
-      <Modal
-        visible={isModalVisible}
-        animationType="slide"
-        transparent={true}
-        onRequestClose={closeModal}
-      >
-        <View style={styles.modalContainer}>
-          <FioList onSelectFio={handleSelectFio} />
-        </View>
-      </Modal>
+      </TouchableOpacity> */}
+
       <Text style={styles.scanText}>Отсканируйте QR-код</Text>
 
       <TouchableOpacity
