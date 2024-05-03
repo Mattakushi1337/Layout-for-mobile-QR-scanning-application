@@ -2,7 +2,7 @@
   "expo": {
     "name": "QR CDS",
     "slug": "qr",
-    "version": "2.0.2",
+    "version": "2.0.7",
     "orientation": "portrait",
     "icon": "./assets/QR_CDS.png",
     "userInterfaceStyle": "light",

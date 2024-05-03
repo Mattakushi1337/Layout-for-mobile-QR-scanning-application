@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { View, Dimensions, Text, TouchableOpacity, BackHandler, Image, TextInput, Alert, Modal, StyleSheet, ScrollView, KeyboardAvoidingView, ActivityIndicator } from 'react-native';
+import { View, Dimensions, Text, TouchableOpacity, Image, TextInput, Alert, Modal, StyleSheet, ScrollView, KeyboardAvoidingView, ActivityIndicator } from 'react-native';
 import { NavigationContainer, useRoute, useFocusEffect } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { AntDesign, MaterialIcons } from '@expo/vector-icons';
@@ -49,18 +49,21 @@ const FioList = ({ onSelectFio }) => {
     try {
       const response = await fetch(`https://back.qrcds.site/users/${inputValue}`);
       const userData = await response.json();
-
       if (userData && userData.fio) {
         const idToImeiMap = {
-          17843: '51757158715',
-          34144: '12345678901',
-          51672: '98765432109',
-          72516: '55555555555',
-          95715: '99999999999',
+          "pqOZLciKlrng": '51757158715',
+          "F0sTxGe5RliK": '12345678901',
+          "d9s19deZzAJV": '98765432109',
+          "vThAfFXXBDZn": '55555555555',
+          "CvAIk7wG8uHf": '99999999999',
         };
 
         const imei = idToImeiMap[userData.id];
-
+        const userRights = {
+          it: userData.it,
+          asutp: userData.asutp,
+          aho: userData.aho,
+        };
         userData.imei = imei;
 
         await fetch(`https://back.qrcds.site/users/${userData.id}`, {
@@ -70,8 +73,9 @@ const FioList = ({ onSelectFio }) => {
           },
           body: JSON.stringify(userData),
         });
-
+        console.log(userData);
         await AsyncStorage.setItem('savedFio', userData.fio);
+        await AsyncStorage.setItem('userRights', JSON.stringify(userRights));
         onSelectFio(userData.fio);
       }
     } catch (error) {
@@ -149,40 +153,842 @@ const HomeScreen = ({ navigation }) => {
       point.y <= perimeterBounds.bottom
     );
   };
-  const handleBarCodeScanned = ({ cornerPoints, data }) => {
+  const handleBarCodeScanned = async ({ cornerPoints, data }) => {
     const pointsInsidePerimeter = cornerPoints.filter(isPointInsidePerimeter);
-
-    if (pointsInsidePerimeter.length > 0) {
+    const centerX = cornerPoints.reduce((sum, point) => sum + point.x, 0) / cornerPoints.length;
+    const centerY = cornerPoints.reduce((sum, point) => sum + point.y, 0) / cornerPoints.length;
+    const userRightsString = await AsyncStorage.getItem('userRights');
+    const userRights = JSON.parse(userRightsString);
+    if (centerX >= perimeterBounds.left &&
+      centerX <= perimeterBounds.right &&
+      centerY >= perimeterBounds.top &&
+      centerY <= perimeterBounds.bottom) {
       if (data === 'mrL7vRrdzUSQ0eYGxM2PvyhlzIy1ZzaIHT8vG1PI') {
-        navigation.navigate('OfficeScreen');
+        if (userRights.aho === "0") {
+          if (!alertShown) {
+            Alert.alert('У вас нет прав для сканирования этого объекта', '', [
+              {
+                text: 'OK',
+                onPress: () => setAlertShown(false),
+              },
+            ]);
+            setAlertShown(true);
+          }
+        } else {
+          navigation.navigate('OfficeScreen');
+          try {
+            const apiUrl = `https://back.qrcds.site/IntData/mrL7vRrdzUSQ0eYGxM2PvyhlzIy1ZzaIHT8vG1PI`;
+
+            const requestData = {
+              qr: 1,
+            };
+
+            const response = await fetch(apiUrl, {
+              method: 'PATCH',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify(requestData),
+            });
+
+            console.log(JSON.stringify(requestData));
+
+            if (!response.ok) {
+              console.error('Ошибка при отправке PATCH-запроса:', response);
+            } else {
+              console.log('Данные успешно обновлены');
+              setTimeout(async () => {
+                const resetData = {
+                  qr: 0,
+                };
+
+                const resetResponse = await fetch(apiUrl, {
+                  method: 'PATCH',
+                  headers: {
+                    'Content-Type': 'application/json',
+                  },
+                  body: JSON.stringify(resetData),
+                });
+
+                if (!resetResponse.ok) {
+                  console.error('Ошибка при отправке PATCH-запроса для сброса:', resetResponse);
+                } else {
+                  console.log('QR успешно сброшен');
+                }
+              }, 2000);
+            }
+          } catch (error) {
+            console.error('Ошибка при выполнении PATCH-запроса:', error);
+          }
+        }
       } else if (data === 'FiZX73nN6P5tjXWSSTqVyr8Yn5hDAIk0tl17hLSn') {
-        navigation.navigate('MFUScreen');
+        if (userRights.it === "0") {
+          if (!alertShown) {
+            Alert.alert('У вас нет прав для сканирования этого объекта', '', [
+              {
+                text: 'OK',
+                onPress: () => setAlertShown(false),
+              },
+            ]);
+            setAlertShown(true);
+          }
+        } else {
+          navigation.navigate('MFUScreen');
+          try {
+            const apiUrl = `https://back.qrcds.site/IntData/FiZX73nN6P5tjXWSSTqVyr8Yn5hDAIk0tl17hLSn`;
+
+            const requestData = {
+              qr: 1,
+            };
+
+            const response = await fetch(apiUrl, {
+              method: 'PATCH',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify(requestData),
+            });
+
+            console.log(JSON.stringify(requestData));
+
+            if (!response.ok) {
+              console.error('Ошибка при отправке PATCH-запроса:', response);
+            } else {
+              console.log('Данные успешно обновлены');
+              setTimeout(async () => {
+                const resetData = {
+                  qr: 0,
+                };
+
+                const resetResponse = await fetch(apiUrl, {
+                  method: 'PATCH',
+                  headers: {
+                    'Content-Type': 'application/json',
+                  },
+                  body: JSON.stringify(resetData),
+                });
+
+                if (!resetResponse.ok) {
+                  console.error('Ошибка при отправке PATCH-запроса для сброса:', resetResponse);
+                } else {
+                  console.log('QR успешно сброшен');
+                }
+              }, 2000);
+            }
+          } catch (error) {
+            console.error('Ошибка при выполнении PATCH-запроса:', error);
+          }
+        }
       } else if (data === 'z1XUGy6aTNHyvYihei9nu63LgGlMQtHe1XnRzJ8d') {
-        navigation.navigate('TableFixScreen');
+        if (userRights.aho === "0") {
+          if (!alertShown) {
+            Alert.alert('У вас нет прав для сканирования этого объекта', '', [
+              {
+                text: 'OK',
+                onPress: () => setAlertShown(false),
+              },
+            ]);
+            setAlertShown(true);
+          }
+        } else {
+          navigation.navigate('TableFixScreen');
+        }
       } else if (data === 'om95lS8uAQ2Hkfezn9qFA4fc2sLGWDGZ1KBlA7dK') {
-        navigation.navigate('ComputerFixScreen');
+        if (userRights.it === "0") {
+          if (!alertShown) {
+            Alert.alert('У вас нет прав для сканирования этого объекта', '', [
+              {
+                text: 'OK',
+                onPress: () => setAlertShown(false),
+              },
+            ]);
+            setAlertShown(true);
+          }
+        } else {
+          navigation.navigate('ComputerFixScreen');
+          try {
+            const apiUrl = `https://back.qrcds.site/IntData/om95lS8uAQ2Hkfezn9qFA4fc2sLGWDGZ1KBlA7dK`;
+
+            const requestData = {
+              qr: 1,
+            };
+
+            const response = await fetch(apiUrl, {
+              method: 'PATCH',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify(requestData),
+            });
+
+            console.log(JSON.stringify(requestData));
+
+            if (!response.ok) {
+              console.error('Ошибка при отправке PATCH-запроса:', response);
+            } else {
+              console.log('Данные успешно обновлены');
+              setTimeout(async () => {
+                const resetData = {
+                  qr: 0,
+                };
+
+                const resetResponse = await fetch(apiUrl, {
+                  method: 'PATCH',
+                  headers: {
+                    'Content-Type': 'application/json',
+                  },
+                  body: JSON.stringify(resetData),
+                });
+
+                if (!resetResponse.ok) {
+                  console.error('Ошибка при отправке PATCH-запроса для сброса:', resetResponse);
+                } else {
+                  console.log('QR успешно сброшен');
+                }
+              }, 2000);
+            }
+          } catch (error) {
+            console.error('Ошибка при выполнении PATCH-запроса:', error);
+          }
+        }
       } else if (data === 'fVnwnEaemLVvaCfuh3hB9OwmOz0f2Hz2KVQDsLl4') {
-        navigation.navigate('PhoneFixScreen');
+        if (userRights.it === "0") {
+          if (!alertShown) {
+            Alert.alert('У вас нет прав для сканирования этого объекта', '', [
+              {
+                text: 'OK',
+                onPress: () => setAlertShown(false),
+              },
+            ]);
+            setAlertShown(true);
+          }
+        } else {
+          navigation.navigate('PhoneFixScreen');
+          try {
+            const apiUrl = `https://back.qrcds.site/IntData/fVnwnEaemLVvaCfuh3hB9OwmOz0f2Hz2KVQDsLl4`;
+
+            const requestData = {
+              qr: 1,
+            };
+
+            const response = await fetch(apiUrl, {
+              method: 'PATCH',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify(requestData),
+            });
+
+            console.log(JSON.stringify(requestData));
+
+            if (!response.ok) {
+              console.error('Ошибка при отправке PATCH-запроса:', response);
+            } else {
+              console.log('Данные успешно обновлены');
+              setTimeout(async () => {
+                const resetData = {
+                  qr: 0,
+                };
+
+                const resetResponse = await fetch(apiUrl, {
+                  method: 'PATCH',
+                  headers: {
+                    'Content-Type': 'application/json',
+                  },
+                  body: JSON.stringify(resetData),
+                });
+
+                if (!resetResponse.ok) {
+                  console.error('Ошибка при отправке PATCH-запроса для сброса:', resetResponse);
+                } else {
+                  console.log('QR успешно сброшен');
+                }
+              }, 2000);
+            }
+          } catch (error) {
+            console.error('Ошибка при выполнении PATCH-запроса:', error);
+          }
+        }
       } else if (data === 'BEYWc02B1w3vONMoViurR06cmQPh4oueJNyO77pZ') {
-        navigation.navigate('MonitorFixScreen');
+        if (userRights.it === "0") {
+          if (!alertShown) {
+            Alert.alert('У вас нет прав для сканирования этого объекта', '', [
+              {
+                text: 'OK',
+                onPress: () => setAlertShown(false),
+              },
+            ]);
+            setAlertShown(true);
+          }
+        } else {
+          navigation.navigate('MonitorFixScreen');
+          try {
+            const apiUrl = `https://back.qrcds.site/IntData/BEYWc02B1w3vONMoViurR06cmQPh4oueJNyO77pZ`;
+
+            const requestData = {
+              qr: 1,
+            };
+
+            const response = await fetch(apiUrl, {
+              method: 'PATCH',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify(requestData),
+            });
+
+            console.log(JSON.stringify(requestData));
+
+            if (!response.ok) {
+              console.error('Ошибка при отправке PATCH-запроса:', response);
+            } else {
+              console.log('Данные успешно обновлены');
+              setTimeout(async () => {
+                const resetData = {
+                  qr: 0,
+                };
+
+                const resetResponse = await fetch(apiUrl, {
+                  method: 'PATCH',
+                  headers: {
+                    'Content-Type': 'application/json',
+                  },
+                  body: JSON.stringify(resetData),
+                });
+
+                if (!resetResponse.ok) {
+                  console.error('Ошибка при отправке PATCH-запроса для сброса:', resetResponse);
+                } else {
+                  console.log('QR успешно сброшен');
+                }
+              }, 2000);
+            }
+          } catch (error) {
+            console.error('Ошибка при выполнении PATCH-запроса:', error);
+          }
+        }
       } else if (data === 'p6ZgIRLZIgVDCSsB30wxw6Og0JdqMfsXBm273bwe') {
-        navigation.navigate('ChairFixScreen');
+        if (userRights.aho === "0") {
+          if (!alertShown) {
+            Alert.alert('У вас нет прав для сканирования этого объекта', '', [
+              {
+                text: 'OK',
+                onPress: () => setAlertShown(false),
+              },
+            ]);
+            setAlertShown(true);
+          }
+        } else {
+          navigation.navigate('ChairFixScreen');
+          try {
+            const apiUrl = `https://back.qrcds.site/IntData/p6ZgIRLZIgVDCSsB30wxw6Og0JdqMfsXBm273bwe`;
+
+            const requestData = {
+              qr: 1,
+            };
+
+            const response = await fetch(apiUrl, {
+              method: 'PATCH',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify(requestData),
+            });
+
+            console.log(JSON.stringify(requestData));
+
+            if (!response.ok) {
+              console.error('Ошибка при отправке PATCH-запроса:', response);
+            } else {
+              console.log('Данные успешно обновлены');
+              setTimeout(async () => {
+                const resetData = {
+                  qr: 0,
+                };
+
+                const resetResponse = await fetch(apiUrl, {
+                  method: 'PATCH',
+                  headers: {
+                    'Content-Type': 'application/json',
+                  },
+                  body: JSON.stringify(resetData),
+                });
+
+                if (!resetResponse.ok) {
+                  console.error('Ошибка при отправке PATCH-запроса для сброса:', resetResponse);
+                } else {
+                  console.log('QR успешно сброшен');
+                }
+              }, 2000);
+            }
+          } catch (error) {
+            console.error('Ошибка при выполнении PATCH-запроса:', error);
+          }
+        }
       } else if (data === '9vKqvvnqtBK5C6krs6aa8PJ7O4LcsH8hWCB6OV6y') {
-        navigation.navigate('RouterFixScreen');
+        if (userRights.aho === "0") {
+          if (!alertShown) {
+            Alert.alert('У вас нет прав для сканирования этого объекта', '', [
+              {
+                text: 'OK',
+                onPress: () => setAlertShown(false),
+              },
+            ]);
+            setAlertShown(true);
+          }
+        } else {
+          navigation.navigate('RouterFixScreen');
+          try {
+            const apiUrl = `https://back.qrcds.site/IntData/9vKqvvnqtBK5C6krs6aa8PJ7O4LcsH8hWCB6OV6y`;
+
+            const requestData = {
+              qr: 1,
+            };
+
+            const response = await fetch(apiUrl, {
+              method: 'PATCH',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify(requestData),
+            });
+
+            console.log(JSON.stringify(requestData));
+
+            if (!response.ok) {
+              console.error('Ошибка при отправке PATCH-запроса:', response);
+            } else {
+              console.log('Данные успешно обновлены');
+              setTimeout(async () => {
+                const resetData = {
+                  qr: 0,
+                };
+
+                const resetResponse = await fetch(apiUrl, {
+                  method: 'PATCH',
+                  headers: {
+                    'Content-Type': 'application/json',
+                  },
+                  body: JSON.stringify(resetData),
+                });
+
+                if (!resetResponse.ok) {
+                  console.error('Ошибка при отправке PATCH-запроса для сброса:', resetResponse);
+                } else {
+                  console.log('QR успешно сброшен');
+                }
+              }, 2000);
+            }
+          } catch (error) {
+            console.error('Ошибка при выполнении PATCH-запроса:', error);
+          }
+        }
       } else if (data === 'Fg3WpHuSHmt9vHJCrDVQVfNG3X2a87DQCTaTrdXn') {
-        navigation.navigate('CoolerFixScreen');
+        if (userRights.it === "0") {
+          if (!alertShown) {
+            Alert.alert('У вас нет прав для сканирования этого объекта', '', [
+              {
+                text: 'OK',
+                onPress: () => setAlertShown(false),
+              },
+            ]);
+            setAlertShown(true);
+          }
+        } else {
+          navigation.navigate('CoolerFixScreen');
+          try {
+            const apiUrl = `https://back.qrcds.site/IntData/Fg3WpHuSHmt9vHJCrDVQVfNG3X2a87DQCTaTrdXn`;
+
+            const requestData = {
+              qr: 1,
+            };
+
+            const response = await fetch(apiUrl, {
+              method: 'PATCH',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify(requestData),
+            });
+
+            console.log(JSON.stringify(requestData));
+
+            if (!response.ok) {
+              console.error('Ошибка при отправке PATCH-запроса:', response);
+            } else {
+              console.log('Данные успешно обновлены');
+              setTimeout(async () => {
+                const resetData = {
+                  qr: 0,
+                };
+
+                const resetResponse = await fetch(apiUrl, {
+                  method: 'PATCH',
+                  headers: {
+                    'Content-Type': 'application/json',
+                  },
+                  body: JSON.stringify(resetData),
+                });
+
+                if (!resetResponse.ok) {
+                  console.error('Ошибка при отправке PATCH-запроса для сброса:', resetResponse);
+                } else {
+                  console.log('QR успешно сброшен');
+                }
+              }, 2000);
+            }
+          } catch (error) {
+            console.error('Ошибка при выполнении PATCH-запроса:', error);
+          }
+        }
       } else if (data === '0R4BU1Cu5CoVAdKQwytppRGEpWzZ1DKZfXTSO5yi') {
-        navigation.navigate('IBPFixScreen');
+        if (userRights.it === "0") {
+          if (!alertShown) {
+            Alert.alert('У вас нет прав для сканирования этого объекта', '', [
+              {
+                text: 'OK',
+                onPress: () => setAlertShown(false),
+              },
+            ]);
+            setAlertShown(true);
+          }
+        } else {
+          navigation.navigate('IBPFixScreen');
+          try {
+            const apiUrl = `https://back.qrcds.site/IntData/0R4BU1Cu5CoVAdKQwytppRGEpWzZ1DKZfXTSO5yi`;
+
+            const requestData = {
+              qr: 1,
+            };
+
+            const response = await fetch(apiUrl, {
+              method: 'PATCH',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify(requestData),
+            });
+
+            console.log(JSON.stringify(requestData));
+
+            if (!response.ok) {
+              console.error('Ошибка при отправке PATCH-запроса:', response);
+            } else {
+              console.log('Данные успешно обновлены');
+              setTimeout(async () => {
+                const resetData = {
+                  qr: 0,
+                };
+
+                const resetResponse = await fetch(apiUrl, {
+                  method: 'PATCH',
+                  headers: {
+                    'Content-Type': 'application/json',
+                  },
+                  body: JSON.stringify(resetData),
+                });
+
+                if (!resetResponse.ok) {
+                  console.error('Ошибка при отправке PATCH-запроса для сброса:', resetResponse);
+                } else {
+                  console.log('QR успешно сброшен');
+                }
+              }, 2000);
+            }
+          } catch (error) {
+            console.error('Ошибка при выполнении PATCH-запроса:', error);
+          }
+        }
       } else if (data === '1XichVggzUfhecv6xyGqAfDR7f6RujLQb3cVPeN1') {
-        navigation.navigate('MFU2FixScreen');
+        if (userRights.it === "0") {
+          if (!alertShown) {
+            Alert.alert('У вас нет прав для сканирования этого объекта', '', [
+              {
+                text: 'OK',
+                onPress: () => setAlertShown(false),
+              },
+            ]);
+            setAlertShown(true);
+          }
+        } else {
+          navigation.navigate('MFU2FixScreen');
+          try {
+            const apiUrl = `https://back.qrcds.site/IntData/1XichVggzUfhecv6xyGqAfDR7f6RujLQb3cVPeN1`;
+
+            const requestData = {
+              qr: 1,
+            };
+
+            const response = await fetch(apiUrl, {
+              method: 'PATCH',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify(requestData),
+            });
+
+            console.log(JSON.stringify(requestData));
+
+            if (!response.ok) {
+              console.error('Ошибка при отправке PATCH-запроса:', response);
+            } else {
+              console.log('Данные успешно обновлены');
+              setTimeout(async () => {
+                const resetData = {
+                  qr: 0,
+                };
+
+                const resetResponse = await fetch(apiUrl, {
+                  method: 'PATCH',
+                  headers: {
+                    'Content-Type': 'application/json',
+                  },
+                  body: JSON.stringify(resetData),
+                });
+
+                if (!resetResponse.ok) {
+                  console.error('Ошибка при отправке PATCH-запроса для сброса:', resetResponse);
+                } else {
+                  console.log('QR успешно сброшен');
+                }
+              }, 2000);
+            }
+          } catch (error) {
+            console.error('Ошибка при выполнении PATCH-запроса:', error);
+          }
+        }
       } else if (data === 'VUUFiYQP6DEEHcABTKG5ySWCohMF7V368JvwDFo6') {
-        navigation.navigate('Computer2FixScreen');
+        if (userRights.it === "0") {
+          if (!alertShown) {
+            Alert.alert('У вас нет прав для сканирования этого объекта', '', [
+              {
+                text: 'OK',
+                onPress: () => setAlertShown(false),
+              },
+            ]);
+            setAlertShown(true);
+          }
+        } else {
+          navigation.navigate('Computer2FixScreen');
+          try {
+            const apiUrl = `https://back.qrcds.site/IntData/VUUFiYQP6DEEHcABTKG5ySWCohMF7V368JvwDFo6`;
+
+            const requestData = {
+              qr: 1,
+            };
+
+            const response = await fetch(apiUrl, {
+              method: 'PATCH',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify(requestData),
+            });
+
+            console.log(JSON.stringify(requestData));
+
+            if (!response.ok) {
+              console.error('Ошибка при отправке PATCH-запроса:', response);
+            } else {
+              console.log('Данные успешно обновлены');
+              setTimeout(async () => {
+                const resetData = {
+                  qr: 0,
+                };
+
+                const resetResponse = await fetch(apiUrl, {
+                  method: 'PATCH',
+                  headers: {
+                    'Content-Type': 'application/json',
+                  },
+                  body: JSON.stringify(resetData),
+                });
+
+                if (!resetResponse.ok) {
+                  console.error('Ошибка при отправке PATCH-запроса для сброса:', resetResponse);
+                } else {
+                  console.log('QR успешно сброшен');
+                }
+              }, 2000);
+            }
+          } catch (error) {
+            console.error('Ошибка при выполнении PATCH-запроса:', error);
+          }
+        }
       } else if (data === 'inbFJyiyvHWnDTUlDszbrIFbCMqYy72vvesYhiYL') {
-        navigation.navigate('Office2Screen');
+        if (userRights.aho === "0") {
+          if (!alertShown) {
+            Alert.alert('У вас нет прав для сканирования этого объекта', '', [
+              {
+                text: 'OK',
+                onPress: () => setAlertShown(false),
+              },
+            ]);
+            setAlertShown(true);
+          }
+        } else {
+          navigation.navigate('Office2Screen');
+          try {
+            const apiUrl = `https://back.qrcds.site/IntData/inbFJyiyvHWnDTUlDszbrIFbCMqYy72vvesYhiYL`;
+
+            const requestData = {
+              qr: 1,
+            };
+
+            const response = await fetch(apiUrl, {
+              method: 'PATCH',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify(requestData),
+            });
+
+            console.log(JSON.stringify(requestData));
+
+            if (!response.ok) {
+              console.error('Ошибка при отправке PATCH-запроса:', response);
+            } else {
+              console.log('Данные успешно обновлены');
+              setTimeout(async () => {
+                const resetData = {
+                  qr: 0,
+                };
+
+                const resetResponse = await fetch(apiUrl, {
+                  method: 'PATCH',
+                  headers: {
+                    'Content-Type': 'application/json',
+                  },
+                  body: JSON.stringify(resetData),
+                });
+
+                if (!resetResponse.ok) {
+                  console.error('Ошибка при отправке PATCH-запроса для сброса:', resetResponse);
+                } else {
+                  console.log('QR успешно сброшен');
+                }
+              }, 2000);
+            }
+          } catch (error) {
+            console.error('Ошибка при выполнении PATCH-запроса:', error);
+          }
+        }
       } else if (data === 's5Gb9aAM91I8mar7IZSR8cJk2puVusARYdz4WSqC') {
-        navigation.navigate('Chair2FixScreen');
+        if (userRights.aho === "0") {
+          if (!alertShown) {
+            Alert.alert('У вас нет прав для сканирования этого объекта', '', [
+              {
+                text: 'OK',
+                onPress: () => setAlertShown(false),
+              },
+            ]);
+            setAlertShown(true);
+          }
+        } else {
+          navigation.navigate('Chair2FixScreen');
+          try {
+            const apiUrl = `https://back.qrcds.site/IntData/s5Gb9aAM91I8mar7IZSR8cJk2puVusARYdz4WSqC`;
+
+            const requestData = {
+              qr: 1,
+            };
+
+            const response = await fetch(apiUrl, {
+              method: 'PATCH',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify(requestData),
+            });
+
+            console.log(JSON.stringify(requestData));
+
+            if (!response.ok) {
+              console.error('Ошибка при отправке PATCH-запроса:', response);
+            } else {
+              console.log('Данные успешно обновлены');
+              setTimeout(async () => {
+                const resetData = {
+                  qr: 0,
+                };
+
+                const resetResponse = await fetch(apiUrl, {
+                  method: 'PATCH',
+                  headers: {
+                    'Content-Type': 'application/json',
+                  },
+                  body: JSON.stringify(resetData),
+                });
+
+                if (!resetResponse.ok) {
+                  console.error('Ошибка при отправке PATCH-запроса для сброса:', resetResponse);
+                } else {
+                  console.log('QR успешно сброшен');
+                }
+              }, 2000);
+            }
+          } catch (error) {
+            console.error('Ошибка при выполнении PATCH-запроса:', error);
+          }
+        }
       } else if (data === 'hhfezhtQFmv7oemKWtpRSu4ka5f4hTbirefUaseF') {
-        navigation.navigate('IBP2FixScreen');
+        if (userRights.it === "0") {
+          if (!alertShown) {
+            Alert.alert('У вас нет прав для сканирования этого объекта', '', [
+              {
+                text: 'OK',
+                onPress: () => setAlertShown(false),
+              },
+            ]);
+            setAlertShown(true);
+          }
+        } else {
+          navigation.navigate('IBP2FixScreen');
+          try {
+            const apiUrl = `https://back.qrcds.site/IntData/hhfezhtQFmv7oemKWtpRSu4ka5f4hTbirefUaseF`;
+
+            const requestData = {
+              qr: 1,
+            };
+
+            const response = await fetch(apiUrl, {
+              method: 'PATCH',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify(requestData),
+            });
+
+            console.log(JSON.stringify(requestData));
+
+            if (!response.ok) {
+              console.error('Ошибка при отправке PATCH-запроса:', response);
+            } else {
+              console.log('Данные успешно обновлены');
+              setTimeout(async () => {
+                const resetData = {
+                  qr: 0,
+                };
+
+                const resetResponse = await fetch(apiUrl, {
+                  method: 'PATCH',
+                  headers: {
+                    'Content-Type': 'application/json',
+                  },
+                  body: JSON.stringify(resetData),
+                });
+
+                if (!resetResponse.ok) {
+                  console.error('Ошибка при отправке PATCH-запроса для сброса:', resetResponse);
+                } else {
+                  console.log('QR успешно сброшен');
+                }
+              }, 2000);
+            }
+          } catch (error) {
+            console.error('Ошибка при выполнении PATCH-запроса:', error);
+          }
+        }
       } else {
         if (!alertShown) {
           Alert.alert('QR код не существует', '', [
@@ -265,7 +1071,7 @@ const HomeScreen = ({ navigation }) => {
         <BarcodeMask key={barcodeKey} lineAnimationDuration={1500} showAnimatedLine={true} edgeBorderWidth={10} edgeHeight={40} edgeWidth={40} edgeRadius={20} animatedLineColor='lime' width={330} height={330} />
       </Camera>
 
-{/* 
+
       <TouchableOpacity
         onPress={() => {
           clearAsyncStorage();
@@ -273,7 +1079,7 @@ const HomeScreen = ({ navigation }) => {
         }}
       >
         <Text style={{ color: '#ffffff' }}>Назад </Text>
-      </TouchableOpacity> */}
+      </TouchableOpacity>
 
       <Text style={styles.scanText}>Отсканируйте QR-код</Text>
 
@@ -3367,7 +4173,7 @@ const styles = StyleSheet.create({
   scanText: {
     alignSelf: 'center',
     position: 'absolute',
-    top: 200,
+    top: 180,
     color: 'white',
     fontSize: 18,
   },
