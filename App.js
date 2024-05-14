@@ -8,7 +8,9 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import BarcodeMask from 'react-native-barcode-mask';
 import { Camera, CameraType } from 'expo-camera';
 import { Ionicons } from '@expo/vector-icons';
+import io from 'socket.io-client';
 
+const socket = io('wss://back.qrcds.site');
 const Stack = createStackNavigator();
 const clearAsyncStorage = async () => {
   try {
@@ -176,50 +178,24 @@ const HomeScreen = ({ navigation }) => {
           }
         } else {
           navigation.navigate('OfficeScreen');
-          try {
-            const apiUrl = `https://back.qrcds.site/IntData/mrL7vRrdzUSQ0eYGxM2PvyhlzIy1ZzaIHT8vG1PI`;
-
-            const requestData = {
-              qr: 1,
-            };
-
-            const response = await fetch(apiUrl, {
-              method: 'PATCH',
-              headers: {
-                'Content-Type': 'application/json',
-              },
-              body: JSON.stringify(requestData),
-            });
-
-            console.log(JSON.stringify(requestData));
-
-            if (!response.ok) {
-              console.error('Ошибка при отправке PATCH-запроса:', response);
-            } else {
-              console.log('Данные успешно обновлены');
-              setTimeout(async () => {
-                const resetData = {
-                  qr: 0,
-                };
-
-                const resetResponse = await fetch(apiUrl, {
-                  method: 'PATCH',
-                  headers: {
-                    'Content-Type': 'application/json',
-                  },
-                  body: JSON.stringify(resetData),
-                });
-
-                if (!resetResponse.ok) {
-                  console.error('Ошибка при отправке PATCH-запроса для сброса:', resetResponse);
-                } else {
-                  console.log('QR успешно сброшен');
-                }
-              }, 2000);
+          socket.emit('animation1', { qrCodeId: 'mrL7vRrdzUSQ0eYGxM2PvyhlzIy1ZzaIHT8vG1PI', userId: userId });
+          socket.emit('animation2', { qrCodeId: 'mrL7vRrdzUSQ0eYGxM2PvyhlzIy1ZzaIHT8vG1PIВ' });
+          const fetchIntDataByName = async () => {
+            const name = 'mrL7vRrdzUSQ0eYGxM2PvyhlzIy1ZzaIHT8vG1PI';
+            const apiUrl = `https://back.qrcds.site/IntData/${name}`;
+        
+            try {
+              const response = await fetch(apiUrl);
+              if (!response.ok) {
+                console.error('Ошибка при получении данных:', response);
+                return null;
+              }
+              const data = await response.json();
+            } catch (error) {
+              console.error('Ошибка при получении данных:', error);
             }
-          } catch (error) {
-            console.error('Ошибка при выполнении PATCH-запроса:', error);
-          }
+          };
+          socket.emit('animation3', await fetchIntDataByName());
         }
       } else if (data === 'FiZX73nN6P5tjXWSSTqVyr8Yn5hDAIk0tl17hLSn') {
         if (userRights.it === "0") {
