@@ -76,6 +76,7 @@ const FioList = ({ onSelectFio }) => {
           body: JSON.stringify(userData),
         });
         console.log(userData);
+        await AsyncStorage.setItem('userId', userData.id);
         await AsyncStorage.setItem('savedFio', userData.fio);
         await AsyncStorage.setItem('userRights', JSON.stringify(userRights));
         onSelectFio(userData.fio);
@@ -178,12 +179,12 @@ const HomeScreen = ({ navigation }) => {
           }
         } else {
           navigation.navigate('OfficeScreen');
-          socket.emit('animation1', { qrCodeId: 'mrL7vRrdzUSQ0eYGxM2PvyhlzIy1ZzaIHT8vG1PI', userId: userId });
-          socket.emit('animation2', { qrCodeId: 'mrL7vRrdzUSQ0eYGxM2PvyhlzIy1ZzaIHT8vG1PIВ' });
+          socket.emit('animation_1', { qrCodeId: 'mrL7vRrdzUSQ0eYGxM2PvyhlzIy1ZzaIHT8vG1PI', userId: await AsyncStorage.getItem('userId') });
+          socket.emit('animation_2', { qrCodeId: 'mrL7vRrdzUSQ0eYGxM2PvyhlzIy1ZzaIHT8vG1PIВ' });
           const fetchIntDataByName = async () => {
             const name = 'mrL7vRrdzUSQ0eYGxM2PvyhlzIy1ZzaIHT8vG1PI';
             const apiUrl = `https://back.qrcds.site/IntData/${name}`;
-        
+
             try {
               const response = await fetch(apiUrl);
               if (!response.ok) {
@@ -191,11 +192,14 @@ const HomeScreen = ({ navigation }) => {
                 return null;
               }
               const data = await response.json();
+              console.log(data);
+              socket.emit('animation_3', data);
             } catch (error) {
               console.error('Ошибка при получении данных:', error);
             }
           };
-          socket.emit('animation3', await fetchIntDataByName());
+          fetchIntDataByName()
+
         }
       } else if (data === 'FiZX73nN6P5tjXWSSTqVyr8Yn5hDAIk0tl17hLSn') {
         if (userRights.it === "0") {
@@ -210,50 +214,22 @@ const HomeScreen = ({ navigation }) => {
           }
         } else {
           navigation.navigate('MFUScreen');
-          try {
-            const apiUrl = `https://back.qrcds.site/IntData/FiZX73nN6P5tjXWSSTqVyr8Yn5hDAIk0tl17hLSn`;
+          socket.emit('animation_1', { qrCodeId: 'FiZX73nN6P5tjXWSSTqVyr8Yn5hDAIk0tl17hLSn', userId: await AsyncStorage.getItem('userId') });
+          socket.emit('animation_2', { qrCodeId: 'FiZX73nN6P5tjXWSSTqVyr8Yn5hDAIk0tl17hLSn' });
+          const fetchIntDataByName = async () => {
+            const name = 'FiZX73nN6P5tjXWSSTqVyr8Yn5hDAIk0tl17hLSn';
+            const apiUrl = `https://back.qrcds.site/IntData/${name}`;
 
-            const requestData = {
-              qr: 1,
-            };
-
-            const response = await fetch(apiUrl, {
-              method: 'PATCH',
-              headers: {
-                'Content-Type': 'application/json',
-              },
-              body: JSON.stringify(requestData),
-            });
-
-            console.log(JSON.stringify(requestData));
-
+            const response = await fetch(apiUrl);
             if (!response.ok) {
-              console.error('Ошибка при отправке PATCH-запроса:', response);
-            } else {
-              console.log('Данные успешно обновлены');
-              setTimeout(async () => {
-                const resetData = {
-                  qr: 0,
-                };
-
-                const resetResponse = await fetch(apiUrl, {
-                  method: 'PATCH',
-                  headers: {
-                    'Content-Type': 'application/json',
-                  },
-                  body: JSON.stringify(resetData),
-                });
-
-                if (!resetResponse.ok) {
-                  console.error('Ошибка при отправке PATCH-запроса для сброса:', resetResponse);
-                } else {
-                  console.log('QR успешно сброшен');
-                }
-              }, 2000);
+              console.error('Ошибка при получении данных:', response);
+              return null;
             }
-          } catch (error) {
-            console.error('Ошибка при выполнении PATCH-запроса:', error);
-          }
+            const data = await response.json();
+            console.log(data);
+            socket.emit('animation_3', data);
+          };
+          fetchIntDataByName();
         }
       } else if (data === 'z1XUGy6aTNHyvYihei9nu63LgGlMQtHe1XnRzJ8d') {
         if (userRights.aho === "0") {
@@ -268,6 +244,21 @@ const HomeScreen = ({ navigation }) => {
           }
         } else {
           navigation.navigate('TableFixScreen');
+          socket.emit('animation_1', { qrCodeId: 'z1XUGy6aTNHyvYihei9nu63LgGlMQtHe1XnRzJ8d', userId: await AsyncStorage.getItem('userId') });
+          socket.emit('animation_2', { qrCodeId: 'z1XUGy6aTNHyvYihei9nu63LgGlMQtHe1XnRzJ8d' });
+          const fetchIntDataByName = async () => {
+            const name = 'z1XUGy6aTNHyvYihei9nu63LgGlMQtHe1XnRzJ8d';
+            const apiUrl = `https://back.qrcds.site/IntData/${name}`;
+            const response = await fetch(apiUrl);
+            if (!response.ok) {
+              console.error('Ошибка при получении данных:', response);
+              return null;
+            }
+            const data = await response.json();
+            console.log(data);
+            socket.emit('animation_3', data);
+          }
+          fetchIntDataByName()
         }
       } else if (data === 'om95lS8uAQ2Hkfezn9qFA4fc2sLGWDGZ1KBlA7dK') {
         if (userRights.it === "0") {
@@ -282,50 +273,21 @@ const HomeScreen = ({ navigation }) => {
           }
         } else {
           navigation.navigate('ComputerFixScreen');
-          try {
-            const apiUrl = `https://back.qrcds.site/IntData/om95lS8uAQ2Hkfezn9qFA4fc2sLGWDGZ1KBlA7dK`;
-
-            const requestData = {
-              qr: 1,
-            };
-
-            const response = await fetch(apiUrl, {
-              method: 'PATCH',
-              headers: {
-                'Content-Type': 'application/json',
-              },
-              body: JSON.stringify(requestData),
-            });
-
-            console.log(JSON.stringify(requestData));
-
+          socket.emit('animation_1', { qrCodeId: 'om95lS8uAQ2Hkfezn9qFA4fc2sLGWDGZ1KBlA7dK', userId: await AsyncStorage.getItem('userId') });
+          socket.emit('animation_2', { qrCodeId: 'om95lS8uAQ2Hkfezn9qFA4fc2sLGWDGZ1KBlA7dK' });
+          const fetchIntDataByName = async () => {
+            const name = 'om95lS8uAQ2Hkfezn9qFA4fc2sLGWDGZ1KBlA7dK';
+            const apiUrl = `https://back.qrcds.site/IntData/${name}`;
+            const response = await fetch(apiUrl);
             if (!response.ok) {
-              console.error('Ошибка при отправке PATCH-запроса:', response);
-            } else {
-              console.log('Данные успешно обновлены');
-              setTimeout(async () => {
-                const resetData = {
-                  qr: 0,
-                };
-
-                const resetResponse = await fetch(apiUrl, {
-                  method: 'PATCH',
-                  headers: {
-                    'Content-Type': 'application/json',
-                  },
-                  body: JSON.stringify(resetData),
-                });
-
-                if (!resetResponse.ok) {
-                  console.error('Ошибка при отправке PATCH-запроса для сброса:', resetResponse);
-                } else {
-                  console.log('QR успешно сброшен');
-                }
-              }, 2000);
+              console.error('Ошибка при получении данных:', response);
+              return null;
             }
-          } catch (error) {
-            console.error('Ошибка при выполнении PATCH-запроса:', error);
+            const data = await response.json();
+            console.log(data);
+            socket.emit('animation_3', data);
           }
+          fetchIntDataByName()
         }
       } else if (data === 'fVnwnEaemLVvaCfuh3hB9OwmOz0f2Hz2KVQDsLl4') {
         if (userRights.it === "0") {
@@ -340,50 +302,21 @@ const HomeScreen = ({ navigation }) => {
           }
         } else {
           navigation.navigate('PhoneFixScreen');
-          try {
-            const apiUrl = `https://back.qrcds.site/IntData/fVnwnEaemLVvaCfuh3hB9OwmOz0f2Hz2KVQDsLl4`;
-
-            const requestData = {
-              qr: 1,
-            };
-
-            const response = await fetch(apiUrl, {
-              method: 'PATCH',
-              headers: {
-                'Content-Type': 'application/json',
-              },
-              body: JSON.stringify(requestData),
-            });
-
-            console.log(JSON.stringify(requestData));
-
+          socket.emit('animation_1', { qrCodeId: 'fVnwnEaemLVvaCfuh3hB9OwmOz0f2Hz2KVQDsLl4', userId: await AsyncStorage.getItem('userId') });
+          socket.emit('animation_2', { qrCodeId: 'fVnwnEaemLVvaCfuh3hB9OwmOz0f2Hz2KVQDsLl4' });
+          const fetchIntDataByName = async () => {
+            const name = 'fVnwnEaemLVvaCfuh3hB9OwmOz0f2Hz2KVQDsLl4';
+            const apiUrl = `https://back.qrcds.site/IntData/${name}`;
+            const response = await fetch(apiUrl);
             if (!response.ok) {
-              console.error('Ошибка при отправке PATCH-запроса:', response);
-            } else {
-              console.log('Данные успешно обновлены');
-              setTimeout(async () => {
-                const resetData = {
-                  qr: 0,
-                };
-
-                const resetResponse = await fetch(apiUrl, {
-                  method: 'PATCH',
-                  headers: {
-                    'Content-Type': 'application/json',
-                  },
-                  body: JSON.stringify(resetData),
-                });
-
-                if (!resetResponse.ok) {
-                  console.error('Ошибка при отправке PATCH-запроса для сброса:', resetResponse);
-                } else {
-                  console.log('QR успешно сброшен');
-                }
-              }, 2000);
+              console.error('Ошибка при получении данных:', response);
+              return null;
             }
-          } catch (error) {
-            console.error('Ошибка при выполнении PATCH-запроса:', error);
+            const data = await response.json();
+            console.log(data);
+            socket.emit('animation_3', data);
           }
+          fetchIntDataByName()
         }
       } else if (data === 'BEYWc02B1w3vONMoViurR06cmQPh4oueJNyO77pZ') {
         if (userRights.it === "0") {
@@ -398,50 +331,21 @@ const HomeScreen = ({ navigation }) => {
           }
         } else {
           navigation.navigate('MonitorFixScreen');
-          try {
-            const apiUrl = `https://back.qrcds.site/IntData/BEYWc02B1w3vONMoViurR06cmQPh4oueJNyO77pZ`;
-
-            const requestData = {
-              qr: 1,
-            };
-
-            const response = await fetch(apiUrl, {
-              method: 'PATCH',
-              headers: {
-                'Content-Type': 'application/json',
-              },
-              body: JSON.stringify(requestData),
-            });
-
-            console.log(JSON.stringify(requestData));
-
+          socket.emit('animation_1', { qrCodeId: 'BEYWc02B1w3vONMoViurR06cmQPh4oueJNyO77pZ', userId: await AsyncStorage.getItem('userId') });
+          socket.emit('animation_2', { qrCodeId: 'BEYWc02B1w3vONMoViurR06cmQPh4oueJNyO77pZ' });
+          const fetchIntDataByName = async () => {
+            const name = 'BEYWc02B1w3vONMoViurR06cmQPh4oueJNyO77pZ';
+            const apiUrl = `https://back.qrcds.site/IntData/${name}`;
+            const response = await fetch(apiUrl);
             if (!response.ok) {
-              console.error('Ошибка при отправке PATCH-запроса:', response);
-            } else {
-              console.log('Данные успешно обновлены');
-              setTimeout(async () => {
-                const resetData = {
-                  qr: 0,
-                };
-
-                const resetResponse = await fetch(apiUrl, {
-                  method: 'PATCH',
-                  headers: {
-                    'Content-Type': 'application/json',
-                  },
-                  body: JSON.stringify(resetData),
-                });
-
-                if (!resetResponse.ok) {
-                  console.error('Ошибка при отправке PATCH-запроса для сброса:', resetResponse);
-                } else {
-                  console.log('QR успешно сброшен');
-                }
-              }, 2000);
+              console.error('Ошибка при получении данных:', response);
+              return null;
             }
-          } catch (error) {
-            console.error('Ошибка при выполнении PATCH-запроса:', error);
+            const data = await response.json();
+            console.log(data);
+            socket.emit('animation_3', data);
           }
+          fetchIntDataByName()
         }
       } else if (data === 'p6ZgIRLZIgVDCSsB30wxw6Og0JdqMfsXBm273bwe') {
         if (userRights.aho === "0") {
@@ -456,110 +360,23 @@ const HomeScreen = ({ navigation }) => {
           }
         } else {
           navigation.navigate('ChairFixScreen');
-          try {
-            const apiUrl = `https://back.qrcds.site/IntData/p6ZgIRLZIgVDCSsB30wxw6Og0JdqMfsXBm273bwe`;
-
-            const requestData = {
-              qr: 1,
-            };
-
-            const response = await fetch(apiUrl, {
-              method: 'PATCH',
-              headers: {
-                'Content-Type': 'application/json',
-              },
-              body: JSON.stringify(requestData),
-            });
-
-            console.log(JSON.stringify(requestData));
-
+          socket.emit('animation_1', { qrCodeId: 'p6ZgIRLZIgVDCSsB30wxw6Og0JdqMfsXBm273bwe', userId: await AsyncStorage.getItem('userId') });
+          socket.emit('animation_2', { qrCodeId: 'p6ZgIRLZIgVDCSsB30wxw6Og0JdqMfsXBm273bwe' });
+          const fetchIntDataByName = async () => {
+            const name = 'p6ZgIRLZIgVDCSsB30wxw6Og0JdqMfsXBm273bwe';
+            const apiUrl = `https://back.qrcds.site/IntData/${name}`;
+            const response = await fetch(apiUrl);
             if (!response.ok) {
-              console.error('Ошибка при отправке PATCH-запроса:', response);
-            } else {
-              console.log('Данные успешно обновлены');
-              setTimeout(async () => {
-                const resetData = {
-                  qr: 0,
-                };
-
-                const resetResponse = await fetch(apiUrl, {
-                  method: 'PATCH',
-                  headers: {
-                    'Content-Type': 'application/json',
-                  },
-                  body: JSON.stringify(resetData),
-                });
-
-                if (!resetResponse.ok) {
-                  console.error('Ошибка при отправке PATCH-запроса для сброса:', resetResponse);
-                } else {
-                  console.log('QR успешно сброшен');
-                }
-              }, 2000);
+              console.error('Ошибка при получении данных:', response);
+              return null;
             }
-          } catch (error) {
-            console.error('Ошибка при выполнении PATCH-запроса:', error);
+            const data = await response.json();
+            console.log(data);
+            socket.emit('animation_3', data);
           }
+          fetchIntDataByName()
         }
       } else if (data === '9vKqvvnqtBK5C6krs6aa8PJ7O4LcsH8hWCB6OV6y') {
-        if (userRights.aho === "0") {
-          if (!alertShown) {
-            Alert.alert('У вас нет прав для сканирования этого объекта', '', [
-              {
-                text: 'OK',
-                onPress: () => setAlertShown(false),
-              },
-            ]);
-            setAlertShown(true);
-          }
-        } else {
-          navigation.navigate('RouterFixScreen');
-          try {
-            const apiUrl = `https://back.qrcds.site/IntData/9vKqvvnqtBK5C6krs6aa8PJ7O4LcsH8hWCB6OV6y`;
-
-            const requestData = {
-              qr: 1,
-            };
-
-            const response = await fetch(apiUrl, {
-              method: 'PATCH',
-              headers: {
-                'Content-Type': 'application/json',
-              },
-              body: JSON.stringify(requestData),
-            });
-
-            console.log(JSON.stringify(requestData));
-
-            if (!response.ok) {
-              console.error('Ошибка при отправке PATCH-запроса:', response);
-            } else {
-              console.log('Данные успешно обновлены');
-              setTimeout(async () => {
-                const resetData = {
-                  qr: 0,
-                };
-
-                const resetResponse = await fetch(apiUrl, {
-                  method: 'PATCH',
-                  headers: {
-                    'Content-Type': 'application/json',
-                  },
-                  body: JSON.stringify(resetData),
-                });
-
-                if (!resetResponse.ok) {
-                  console.error('Ошибка при отправке PATCH-запроса для сброса:', resetResponse);
-                } else {
-                  console.log('QR успешно сброшен');
-                }
-              }, 2000);
-            }
-          } catch (error) {
-            console.error('Ошибка при выполнении PATCH-запроса:', error);
-          }
-        }
-      } else if (data === 'Fg3WpHuSHmt9vHJCrDVQVfNG3X2a87DQCTaTrdXn') {
         if (userRights.it === "0") {
           if (!alertShown) {
             Alert.alert('У вас нет прав для сканирования этого объекта', '', [
@@ -571,51 +388,52 @@ const HomeScreen = ({ navigation }) => {
             setAlertShown(true);
           }
         } else {
-          navigation.navigate('CoolerFixScreen');
-          try {
-            const apiUrl = `https://back.qrcds.site/IntData/Fg3WpHuSHmt9vHJCrDVQVfNG3X2a87DQCTaTrdXn`;
-
-            const requestData = {
-              qr: 1,
-            };
-
-            const response = await fetch(apiUrl, {
-              method: 'PATCH',
-              headers: {
-                'Content-Type': 'application/json',
-              },
-              body: JSON.stringify(requestData),
-            });
-
-            console.log(JSON.stringify(requestData));
-
+          navigation.navigate('RouterFixScreen');
+          socket.emit('animation_1', { qrCodeId: '9vKqvvnqtBK5C6krs6aa8PJ7O4LcsH8hWCB6OV6y', userId: await AsyncStorage.getItem('userId') });
+          socket.emit('animation_2', { qrCodeId: '9vKqvvnqtBK5C6krs6aa8PJ7O4LcsH8hWCB6OV6y' });
+          const fetchIntDataByName = async () => {
+            const name = '9vKqvvnqtBK5C6krs6aa8PJ7O4LcsH8hWCB6OV6y';
+            const apiUrl = `https://back.qrcds.site/IntData/${name}`;
+            const response = await fetch(apiUrl);
             if (!response.ok) {
-              console.error('Ошибка при отправке PATCH-запроса:', response);
-            } else {
-              console.log('Данные успешно обновлены');
-              setTimeout(async () => {
-                const resetData = {
-                  qr: 0,
-                };
-
-                const resetResponse = await fetch(apiUrl, {
-                  method: 'PATCH',
-                  headers: {
-                    'Content-Type': 'application/json',
-                  },
-                  body: JSON.stringify(resetData),
-                });
-
-                if (!resetResponse.ok) {
-                  console.error('Ошибка при отправке PATCH-запроса для сброса:', resetResponse);
-                } else {
-                  console.log('QR успешно сброшен');
-                }
-              }, 2000);
+              console.error('Ошибка при получении данных:', response);
+              return null;
             }
-          } catch (error) {
-            console.error('Ошибка при выполнении PATCH-запроса:', error);
+            const data = await response.json();
+            console.log(data);
+            socket.emit('animation_3', data);
           }
+          fetchIntDataByName()
+        }
+
+      } else if (data === 'Fg3WpHuSHmt9vHJCrDVQVfNG3X2a87DQCTaTrdXn') {
+        if (userRights.aho === "0") {
+          if (!alertShown) {
+            Alert.alert('У вас нет прав для сканирования этого объекта', '', [
+              {
+                text: 'OK',
+                onPress: () => setAlertShown(false),
+              },
+            ]);
+            setAlertShown(true);
+          }
+        } else {
+          navigation.navigate('CoolerFixScreen');
+          socket.emit('animation_1', { qrCodeId: 'Fg3WpHuSHmt9vHJCrDVQVfNG3X2a87DQCTaTrdXn', userId: await AsyncStorage.getItem('userId') });
+          socket.emit('animation_2', { qrCodeId: 'Fg3WpHuSHmt9vHJCrDVQVfNG3X2a87DQCTaTrdXn' });
+          const fetchIntDataByName = async () => {
+            const name = 'Fg3WpHuSHmt9vHJCrDVQVfNG3X2a87DQCTaTrdXn';
+            const apiUrl = `https://back.qrcds.site/IntData/${name}`;
+            const response = await fetch(apiUrl);
+            if (!response.ok) {
+              console.error('Ошибка при получении данных:', response);
+              return null;
+            }
+            const data = await response.json();
+            console.log(data);
+            socket.emit('animation_3', data);
+          }
+          fetchIntDataByName();
         }
       } else if (data === '0R4BU1Cu5CoVAdKQwytppRGEpWzZ1DKZfXTSO5yi') {
         if (userRights.it === "0") {
@@ -630,50 +448,21 @@ const HomeScreen = ({ navigation }) => {
           }
         } else {
           navigation.navigate('IBPFixScreen');
-          try {
-            const apiUrl = `https://back.qrcds.site/IntData/0R4BU1Cu5CoVAdKQwytppRGEpWzZ1DKZfXTSO5yi`;
-
-            const requestData = {
-              qr: 1,
-            };
-
-            const response = await fetch(apiUrl, {
-              method: 'PATCH',
-              headers: {
-                'Content-Type': 'application/json',
-              },
-              body: JSON.stringify(requestData),
-            });
-
-            console.log(JSON.stringify(requestData));
-
+          socket.emit('animation_1', { qrCodeId: '0R4BU1Cu5CoVAdKQwytppRGEpWzZ1DKZfXTSO5yi', userId: await AsyncStorage.getItem('userId') });
+          socket.emit('animation_2', { qrCodeId: '0R4BU1Cu5CoVAdKQwytppRGEpWzZ1DKZfXTSO5yi' });
+          const fetchIntDataByName = async () => {
+            const name = '0R4BU1Cu5CoVAdKQwytppRGEpWzZ1DKZfXTSO5yi';
+            const apiUrl = `https://back.qrcds.site/IntData/${name}`;
+            const response = await fetch(apiUrl);
             if (!response.ok) {
-              console.error('Ошибка при отправке PATCH-запроса:', response);
-            } else {
-              console.log('Данные успешно обновлены');
-              setTimeout(async () => {
-                const resetData = {
-                  qr: 0,
-                };
-
-                const resetResponse = await fetch(apiUrl, {
-                  method: 'PATCH',
-                  headers: {
-                    'Content-Type': 'application/json',
-                  },
-                  body: JSON.stringify(resetData),
-                });
-
-                if (!resetResponse.ok) {
-                  console.error('Ошибка при отправке PATCH-запроса для сброса:', resetResponse);
-                } else {
-                  console.log('QR успешно сброшен');
-                }
-              }, 2000);
+              console.error('Ошибка при получении данных:', response);
+              return null;
             }
-          } catch (error) {
-            console.error('Ошибка при выполнении PATCH-запроса:', error);
+            const data = await response.json();
+            console.log(data);
+            socket.emit('animation_3', data);
           }
+          fetchIntDataByName();
         }
       } else if (data === '1XichVggzUfhecv6xyGqAfDR7f6RujLQb3cVPeN1') {
         if (userRights.it === "0") {
@@ -688,50 +477,21 @@ const HomeScreen = ({ navigation }) => {
           }
         } else {
           navigation.navigate('MFU2FixScreen');
-          try {
-            const apiUrl = `https://back.qrcds.site/IntData/1XichVggzUfhecv6xyGqAfDR7f6RujLQb3cVPeN1`;
-
-            const requestData = {
-              qr: 1,
-            };
-
-            const response = await fetch(apiUrl, {
-              method: 'PATCH',
-              headers: {
-                'Content-Type': 'application/json',
-              },
-              body: JSON.stringify(requestData),
-            });
-
-            console.log(JSON.stringify(requestData));
-
+          socket.emit('animation_1', { qrCodeId: '1XichVggzUfhecv6xyGqAfDR7f6RujLQb3cVPeN1', userId: await AsyncStorage.getItem('userId') });
+          socket.emit('animation_2', { qrCodeId: '1XichVggzUfhecv6xyGqAfDR7f6RujLQb3cVPeN1' });
+          const fetchIntDataByName = async () => {
+            const name = '1XichVggzUfhecv6xyGqAfDR7f6RujLQb3cVPeN1';
+            const apiUrl = `https://back.qrcds.site/IntData/${name}`;
+            const response = await fetch(apiUrl);
             if (!response.ok) {
-              console.error('Ошибка при отправке PATCH-запроса:', response);
-            } else {
-              console.log('Данные успешно обновлены');
-              setTimeout(async () => {
-                const resetData = {
-                  qr: 0,
-                };
-
-                const resetResponse = await fetch(apiUrl, {
-                  method: 'PATCH',
-                  headers: {
-                    'Content-Type': 'application/json',
-                  },
-                  body: JSON.stringify(resetData),
-                });
-
-                if (!resetResponse.ok) {
-                  console.error('Ошибка при отправке PATCH-запроса для сброса:', resetResponse);
-                } else {
-                  console.log('QR успешно сброшен');
-                }
-              }, 2000);
+              console.error('Ошибка при получении данных:', response);
+              return null;
             }
-          } catch (error) {
-            console.error('Ошибка при выполнении PATCH-запроса:', error);
+            const data = await response.json();
+            console.log(data);
+            socket.emit('animation_3', data);
           }
+          fetchIntDataByName();
         }
       } else if (data === 'VUUFiYQP6DEEHcABTKG5ySWCohMF7V368JvwDFo6') {
         if (userRights.it === "0") {
@@ -746,50 +506,21 @@ const HomeScreen = ({ navigation }) => {
           }
         } else {
           navigation.navigate('Computer2FixScreen');
-          try {
-            const apiUrl = `https://back.qrcds.site/IntData/VUUFiYQP6DEEHcABTKG5ySWCohMF7V368JvwDFo6`;
-
-            const requestData = {
-              qr: 1,
-            };
-
-            const response = await fetch(apiUrl, {
-              method: 'PATCH',
-              headers: {
-                'Content-Type': 'application/json',
-              },
-              body: JSON.stringify(requestData),
-            });
-
-            console.log(JSON.stringify(requestData));
-
+          socket.emit('animation_1', { qrCodeId: 'VUUFiYQP6DEEHcABTKG5ySWCohMF7V368JvwDFo6', userId: await AsyncStorage.getItem('userId') });
+          socket.emit('animation_2', { qrCodeId: 'VUUFiYQP6DEEHcABTKG5ySWCohMF7V368JvwDFo6' });
+          const fetchIntDataByName = async () => {
+            const name = 'VUUFiYQP6DEEHcABTKG5ySWCohMF7V368JvwDFo6';
+            const apiUrl = `https://back.qrcds.site/IntData/${name}`;
+            const response = await fetch(apiUrl);
             if (!response.ok) {
-              console.error('Ошибка при отправке PATCH-запроса:', response);
-            } else {
-              console.log('Данные успешно обновлены');
-              setTimeout(async () => {
-                const resetData = {
-                  qr: 0,
-                };
-
-                const resetResponse = await fetch(apiUrl, {
-                  method: 'PATCH',
-                  headers: {
-                    'Content-Type': 'application/json',
-                  },
-                  body: JSON.stringify(resetData),
-                });
-
-                if (!resetResponse.ok) {
-                  console.error('Ошибка при отправке PATCH-запроса для сброса:', resetResponse);
-                } else {
-                  console.log('QR успешно сброшен');
-                }
-              }, 2000);
+              console.error('Ошибка при получении данных:', response);
+              return null;
             }
-          } catch (error) {
-            console.error('Ошибка при выполнении PATCH-запроса:', error);
+            const data = await response.json();
+            console.log(data);
+            socket.emit('animation_3', data);
           }
+          fetchIntDataByName();
         }
       } else if (data === 'inbFJyiyvHWnDTUlDszbrIFbCMqYy72vvesYhiYL') {
         if (userRights.aho === "0") {
@@ -804,50 +535,21 @@ const HomeScreen = ({ navigation }) => {
           }
         } else {
           navigation.navigate('Office2Screen');
-          try {
-            const apiUrl = `https://back.qrcds.site/IntData/inbFJyiyvHWnDTUlDszbrIFbCMqYy72vvesYhiYL`;
-
-            const requestData = {
-              qr: 1,
-            };
-
-            const response = await fetch(apiUrl, {
-              method: 'PATCH',
-              headers: {
-                'Content-Type': 'application/json',
-              },
-              body: JSON.stringify(requestData),
-            });
-
-            console.log(JSON.stringify(requestData));
-
+          socket.emit('animation_1', { qrCodeId: 'inbFJyiyvHWnDTUlDszbrIFbCMqYy72vvesYhiYL', userId: await AsyncStorage.getItem('userId') });
+          socket.emit('animation_2', { qrCodeId: 'inbFJyiyvHWnDTUlDszbrIFbCMqYy72vvesYhiYL' });
+          const fetchIntDataByName = async () => {
+            const name = 'inbFJyiyvHWnDTUlDszbrIFbCMqYy72vvesYhiYL';
+            const apiUrl = `https://back.qrcds.site/IntData/${name}`;
+            const response = await fetch(apiUrl);
             if (!response.ok) {
-              console.error('Ошибка при отправке PATCH-запроса:', response);
-            } else {
-              console.log('Данные успешно обновлены');
-              setTimeout(async () => {
-                const resetData = {
-                  qr: 0,
-                };
-
-                const resetResponse = await fetch(apiUrl, {
-                  method: 'PATCH',
-                  headers: {
-                    'Content-Type': 'application/json',
-                  },
-                  body: JSON.stringify(resetData),
-                });
-
-                if (!resetResponse.ok) {
-                  console.error('Ошибка при отправке PATCH-запроса для сброса:', resetResponse);
-                } else {
-                  console.log('QR успешно сброшен');
-                }
-              }, 2000);
+              console.error('Ошибка при получении данных:', response);
+              return null;
             }
-          } catch (error) {
-            console.error('Ошибка при выполнении PATCH-запроса:', error);
+            const data = await response.json();
+            console.log(data);
+            socket.emit('animation_3', data);
           }
+          fetchIntDataByName();
         }
       } else if (data === 's5Gb9aAM91I8mar7IZSR8cJk2puVusARYdz4WSqC') {
         if (userRights.aho === "0") {
@@ -862,50 +564,21 @@ const HomeScreen = ({ navigation }) => {
           }
         } else {
           navigation.navigate('Chair2FixScreen');
-          try {
-            const apiUrl = `https://back.qrcds.site/IntData/s5Gb9aAM91I8mar7IZSR8cJk2puVusARYdz4WSqC`;
-
-            const requestData = {
-              qr: 1,
-            };
-
-            const response = await fetch(apiUrl, {
-              method: 'PATCH',
-              headers: {
-                'Content-Type': 'application/json',
-              },
-              body: JSON.stringify(requestData),
-            });
-
-            console.log(JSON.stringify(requestData));
-
+          socket.emit('animation_1', { qrCodeId: 's5Gb9aAM91I8mar7IZSR8cJk2puVusARYdz4WSqC', userId: await AsyncStorage.getItem('userId') });
+          socket.emit('animation_2', { qrCodeId: 's5Gb9aAM91I8mar7IZSR8cJk2puVusARYdz4WSqC' });
+          const fetchIntDataByName = async () => {
+            const name = 's5Gb9aAM91I8mar7IZSR8cJk2puVusARYdz4WSqC';
+            const apiUrl = `https://back.qrcds.site/IntData/${name}`;
+            const response = await fetch(apiUrl);
             if (!response.ok) {
-              console.error('Ошибка при отправке PATCH-запроса:', response);
-            } else {
-              console.log('Данные успешно обновлены');
-              setTimeout(async () => {
-                const resetData = {
-                  qr: 0,
-                };
-
-                const resetResponse = await fetch(apiUrl, {
-                  method: 'PATCH',
-                  headers: {
-                    'Content-Type': 'application/json',
-                  },
-                  body: JSON.stringify(resetData),
-                });
-
-                if (!resetResponse.ok) {
-                  console.error('Ошибка при отправке PATCH-запроса для сброса:', resetResponse);
-                } else {
-                  console.log('QR успешно сброшен');
-                }
-              }, 2000);
+              console.error('Ошибка при получении данных:', response);
+              return null;
             }
-          } catch (error) {
-            console.error('Ошибка при выполнении PATCH-запроса:', error);
+            const data = await response.json();
+            console.log(data);
+            socket.emit('animation_3', data);
           }
+          fetchIntDataByName();
         }
       } else if (data === 'hhfezhtQFmv7oemKWtpRSu4ka5f4hTbirefUaseF') {
         if (userRights.it === "0") {
@@ -920,50 +593,21 @@ const HomeScreen = ({ navigation }) => {
           }
         } else {
           navigation.navigate('IBP2FixScreen');
-          try {
-            const apiUrl = `https://back.qrcds.site/IntData/hhfezhtQFmv7oemKWtpRSu4ka5f4hTbirefUaseF`;
-
-            const requestData = {
-              qr: 1,
-            };
-
-            const response = await fetch(apiUrl, {
-              method: 'PATCH',
-              headers: {
-                'Content-Type': 'application/json',
-              },
-              body: JSON.stringify(requestData),
-            });
-
-            console.log(JSON.stringify(requestData));
-
+          socket.emit('animation_1', { qrCodeId: 'hhfezhtQFmv7oemKWtpRSu4ka5f4hTbirefUaseF', userId: await AsyncStorage.getItem('userId') });
+          socket.emit('animation_2', { qrCodeId: 'hhfezhtQFmv7oemKWtpRSu4ka5f4hTbirefUaseF' });
+          const fetchIntDataByName = async () => {
+            const name = 'hhfezhtQFmv7oemKWtpRSu4ka5f4hTbirefUaseF';
+            const apiUrl = `https://back.qrcds.site/IntData/${name}`;
+            const response = await fetch(apiUrl);
             if (!response.ok) {
-              console.error('Ошибка при отправке PATCH-запроса:', response);
-            } else {
-              console.log('Данные успешно обновлены');
-              setTimeout(async () => {
-                const resetData = {
-                  qr: 0,
-                };
-
-                const resetResponse = await fetch(apiUrl, {
-                  method: 'PATCH',
-                  headers: {
-                    'Content-Type': 'application/json',
-                  },
-                  body: JSON.stringify(resetData),
-                });
-
-                if (!resetResponse.ok) {
-                  console.error('Ошибка при отправке PATCH-запроса для сброса:', resetResponse);
-                } else {
-                  console.log('QR успешно сброшен');
-                }
-              }, 2000);
+              console.error('Ошибка при получении данных:', response);
+              return null;
             }
-          } catch (error) {
-            console.error('Ошибка при выполнении PATCH-запроса:', error);
+            const data = await response.json();
+            console.log(data);
+            socket.emit('animation_3', data);
           }
+          fetchIntDataByName();
         }
       } else {
         if (!alertShown) {
@@ -1155,6 +799,7 @@ const OfficeScreen = ({ navigation }) => {
       if (!response.ok) {
         console.log('Ошибка при отправке данных на сервер:', response);
       } else {
+        socket.emit('animation_4', requestBody);
         console.log('Данные успешно отправлены на сервер');
       }
     } catch (error) {
@@ -1381,6 +1026,7 @@ const Office2Screen = ({ navigation }) => {
       if (!response.ok) {
         console.log('Ошибка при отправке данных на сервер:', response);
       } else {
+        socket.emit('animation_4', requestBody);
         console.log('Данные успешно отправлены на сервер');
       }
     } catch (error) {
@@ -1603,6 +1249,7 @@ const MFUScreen = ({ navigation }) => {
       if (!response.ok) {
         console.error('Ошибка при отправке данных на сервер:', response);
       } else {
+        socket.emit('animation_4', requestBody);
         console.log('Данные успешно отправлены на сервер');
       }
     } catch (error) {
@@ -1821,6 +1468,7 @@ const MFU2FixScreen = ({ navigation }) => {
       if (!response.ok) {
         console.error('Ошибка при отправке данных на сервер:', response);
       } else {
+        socket.emit('animation_4', requestBody);
         console.log('Данные успешно отправлены на сервер');
       }
     } catch (error) {
@@ -2011,6 +1659,7 @@ const TableFixScreen = ({ navigation }) => {
       if (!response.ok) {
         console.error('Ошибка при отправке данных на сервер:', response);
       } else {
+        socket.emit('animation_4', requestBody);
         console.log('Данные успешно отправлены на сервер');
       }
     } catch (error) {
@@ -2186,6 +1835,7 @@ const ComputerFixScreen = ({ navigation }) => {
       if (!response.ok) {
         console.error('Ошибка при отправке данных на сервер:', response);
       } else {
+        socket.emit('animation_4', requestBody);
         console.log('Данные успешно отправлены на сервер');
       }
     } catch (error) {
@@ -2377,6 +2027,7 @@ const Computer2FixScreen = ({ navigation }) => {
       if (!response.ok) {
         console.error('Ошибка при отправке данных на сервер:', response);
       } else {
+        socket.emit('animation_4', requestBody);
         console.log('Данные успешно отправлены на сервер');
       }
     } catch (error) {
@@ -2555,6 +2206,7 @@ const PhoneFixScreen = ({ navigation }) => {
       if (!response.ok) {
         console.log('Ошибка при отправке данных на сервер:', response);
       } else {
+        socket.emit('animation_4', requestBody);
         console.log('Данные успешно отправлены на сервер');
       }
     } catch (error) {
@@ -2746,6 +2398,7 @@ const MonitorFixScreen = ({ navigation }) => {
       if (!response.ok) {
         console.log('Ошибка при отправке данных на сервер:', response);
       } else {
+        socket.emit('animation_4', requestBody);
         console.log('Данные успешно отправлены на сервер');
       }
     } catch (error) {
@@ -2937,6 +2590,7 @@ const IBPFixScreen = ({ navigation }) => {
       if (!response.ok) {
         console.log('Ошибка при отправке данных на сервер:', response);
       } else {
+        socket.emit('animation_4', requestBody);
         console.log('Данные успешно отправлены на сервер');
       }
     } catch (error) {
@@ -3128,6 +2782,7 @@ const IBP2FixScreen = ({ navigation }) => {
       if (!response.ok) {
         console.log('Ошибка при отправке данных на сервер:', response);
       } else {
+        socket.emit('animation_4', requestBody);
         console.log('Данные успешно отправлены на сервер');
       }
     } catch (error) {
@@ -3319,6 +2974,7 @@ const ChairFixScreen = ({ navigation }) => {
       if (!response.ok) {
         console.log('Ошибка при отправке данных на сервер:', response);
       } else {
+        socket.emit('animation_4', requestBody);
         console.log('Данные успешно отправлены на сервер');
       }
     } catch (error) {
@@ -3508,6 +3164,7 @@ const Chair2FixScreen = ({ navigation }) => {
       if (!response.ok) {
         console.log('Ошибка при отправке данных на сервер:', response);
       } else {
+        socket.emit('animation_4', requestBody);
         console.log('Данные успешно отправлены на сервер');
       }
     } catch (error) {
@@ -3697,6 +3354,7 @@ const RouterFixScreen = ({ navigation }) => {
       if (!response.ok) {
         console.log('Ошибка при отправке данных на сервер:', response);
       } else {
+        socket.emit('animation_4', requestBody);
         console.log('Данные успешно отправлены на сервер');
       }
     } catch (error) {
@@ -3884,6 +3542,7 @@ const CoolerFixScreen = ({ navigation }) => {
       if (!response.ok) {
         console.log('Ошибка при отправке данных на сервер:', response);
       } else {
+        socket.emit('animation_4', requestBody);
         console.log('Данные успешно отправлены на сервер');
       }
     } catch (error) {
